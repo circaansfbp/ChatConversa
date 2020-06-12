@@ -9,4 +9,10 @@ public interface ServicioWeb {
     @FormUrlEncoded
     @POST("login")
     Call<RespuestaWS> iniciarSesion (@Field("username") String username, @Field("password") String password, @Field("device_id") String deviceId);
+
+    @FormUrlEncoded
+    @POST("create")
+    Call<RespuestaWS> registerUser (@Field("name") String name, @Field("lastname") String lastname, @Field("run") String run,
+                                    @Field("username") String username, @Field("email") String email,
+                                    @Field("password") String password, @Field("token_enterprise") String tokenEmpresa);
 }

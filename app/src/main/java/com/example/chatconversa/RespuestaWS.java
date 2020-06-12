@@ -5,13 +5,11 @@ import java.util.Objects;
 public class RespuestaWS {
     private int statusCode;
     private String message;
-    private String token;
     private User data;
 
-    public RespuestaWS(int statusCode, String message, String token, User data) {
+    public RespuestaWS(int statusCode, String message, User data) {
         this.statusCode = statusCode;
         this.message = message;
-        this.token = token;
         this.data = data;
     }
 
@@ -33,14 +31,6 @@ public class RespuestaWS {
         this.message = message;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public User getData() {
         return data;
     }
@@ -56,21 +46,19 @@ public class RespuestaWS {
         RespuestaWS that = (RespuestaWS) o;
         return statusCode == that.statusCode &&
                 Objects.equals(message, that.message) &&
-                Objects.equals(token, that.token) &&
                 Objects.equals(data, that.data);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(statusCode, message, token, data);
+        return Objects.hash(statusCode, message, data);
     }
 
     @Override
     public String toString() {
-        return "RespuestaWB{" +
+        return "RespuestaWS{" +
                 "statusCode=" + statusCode +
                 ", message='" + message + '\'' +
-                ", token='" + token + '\'' +
                 ", data=" + data +
                 '}';
     }
