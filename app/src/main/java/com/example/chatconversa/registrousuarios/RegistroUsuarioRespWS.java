@@ -8,26 +8,11 @@ public class RegistroUsuarioRespWS {
     private int statusCode;
     private String message;
     private User data;
-    private ErrorRegistroUsuario errors;
-
-    public RegistroUsuarioRespWS(int statusCode, String message, ErrorRegistroUsuario errors) {
-        this.statusCode = statusCode;
-        this.message = message;
-        this.errors = errors;
-    }
 
     public RegistroUsuarioRespWS(int statusCode, String message, User data) {
         this.statusCode = statusCode;
         this.message = message;
         this.data = data;
-    }
-
-    public ErrorRegistroUsuario getErrors() {
-        return errors;
-    }
-
-    public void setErrors(ErrorRegistroUsuario errors) {
-        this.errors = errors;
     }
 
     public RegistroUsuarioRespWS() { }
@@ -63,22 +48,20 @@ public class RegistroUsuarioRespWS {
         RegistroUsuarioRespWS that = (RegistroUsuarioRespWS) o;
         return statusCode == that.statusCode &&
                 Objects.equals(message, that.message) &&
-                Objects.equals(data, that.data) &&
-                Objects.equals(errors, that.errors);
+                Objects.equals(data, that.data);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(statusCode, message, data, errors);
+        return Objects.hash(statusCode, message, data);
     }
 
     @Override
     public String toString() {
-        return "RespuestaWS{" +
+        return "RegistroUsuarioRespWS{" +
                 "statusCode=" + statusCode +
                 ", message='" + message + '\'' +
                 ", data=" + data +
-                ", errors=" + errors +
                 '}';
     }
 }
