@@ -12,8 +12,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".RegistroUsuario"></activity>
-        <activity android:name=".InicioSesion">
+        <activity android:name=".registrousuarios.RegistroUsuario"></activity>
+        <activity android:name=".iniciosesion.InicioSesion">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
