@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".InicioSesion">
+    tools:context=".iniciosesion.InicioSesion">
 
     <TextView
         android:layout_width="match_parent"
@@ -23,12 +23,15 @@
         android:layout_marginTop="20dp"
         android:layout_marginHorizontal="40dp"
         android:hint="Nombre de usuario"
+        app:counterEnabled="true"
+        app:counterMaxLength="8"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:maxLength="8"
             />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -38,13 +41,16 @@
         android:layout_marginTop="20dp"
         android:layout_marginHorizontal="40dp"
         android:hint="Contraseña"
+        app:counterEnabled="true"
+        app:counterMaxLength="12"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/password"
             android:inputType="textPassword"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:maxLength="12" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
