@@ -2,14 +2,17 @@ package com.example.chatconversa.registrousuarios;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.chatconversa.Bienvenida_activity;
 import com.example.chatconversa.R;
 import com.example.chatconversa.ServicioWeb;
+import com.example.chatconversa.iniciosesion.InicioSesion;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 
@@ -117,6 +120,12 @@ public class RegistroUsuario extends AppCompatActivity {
         });
     }
 
+    /*Metodo para ir a la actividad inicio de sesion*/
+    public void initInicio() {
+        Intent inicioS = new Intent(RegistroUsuario.this, InicioSesion.class);
+        startActivity(inicioS);
+    }
+
     public void initRegistro() {
         final Call<RegistroUsuarioRespWS> respuesta = servicio.registerUser(nombre.getText().toString(), apellido.getText().toString(),
                 run.getText().toString(), nombreUsuario.getText().toString(), email.getText().toString(), contraseña.getText().toString(),
@@ -131,6 +140,10 @@ public class RegistroUsuario extends AppCompatActivity {
                     RegistroUsuarioRespWS resp = response.body();
                     Log.d("retrofit", resp.getMessage());
                     Log.d("retrofit", resp.toString());
+
+                    //luego del registro exitoso se envia a la actividad de inicio y finaliza la actividad de registro
+                    initInicio();
+                    finish();
                 } else {
 
                     Log.d("retrofit", "Content type: " + response.errorBody().contentType().toString());
