@@ -1,8 +1,10 @@
 package com.example.chatconversa.iniciosesion;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -13,6 +15,7 @@ import android.widget.Button;
 
 import com.example.chatconversa.R;
 import com.example.chatconversa.ServicioWeb;
+import com.example.chatconversa.errors.ErrorResponse;
 import com.example.chatconversa.registrousuarios.RegistroUsuario;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
@@ -72,6 +75,7 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
     public void initRegistroUsuario() {
         Intent registroUsuario = new Intent(InicioSesion.this, RegistroUsuario.class);
         startActivity(registroUsuario);
+        finish();
     }
 
     /**/
@@ -96,40 +100,64 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
 
         } else {
 
-            /*COMO OBTENGO EL ID DEL TELEFONO???? khe he hecho*/
             final Call<InicioSesionRespWS> respuesta = servicio.iniciarSesion(username.getText().toString(), password.getText().toString(), id(this));
-            Log.d("retrofit", "UUID: " + id(this));
 
             respuesta.enqueue(new Callback<InicioSesionRespWS>() {
                 @Override
                 public void onResponse(Call<InicioSesionRespWS> call, Response<InicioSesionRespWS> response) {
-
-                    Log.d("retrofit", "Entre al metodo onResponse()");
-                    Log.d("retrofit", String.valueOf(response.code()));
-
                     if (response.isSuccessful() && response != null && response.body() != null) {
                         InicioSesionRespWS resp = response.body();
-
+                        //DEBE LLEVAR A OTRA ACTIVIDAD QUE REPRESENTARA LA SESION INICIADA
                         Log.d("retrofit", resp.getMessage());
                         Log.d("retrofit", resp.toString());
 
                     } else {
+
                         Gson gson = new Gson();
-                        ErrorInicioSesion error = new ErrorInicioSesion();
+                        ErrorResponse error = new ErrorResponse();
 
                         try {
-                            error = gson.fromJson(response.errorBody().string(), ErrorInicioSesion.class);
+                            error = gson.fromJson(response.errorBody().string(), ErrorResponse.class);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
 
-                        Log.d("retrofit", "Error body convert: " + error);
+                        AlertDialog.Builder msg = new AlertDialog.Builder(InicioSesion.this);
+
+                        if (error.getStatus_code() == 400) {
+                            Log.d("retrofit", "sesion ya activa");
+
+                            msg.setTitle("Sesión ya activa");
+                            msg.setMessage(error.getMessage() + ".");
+                        } else if (error.getStatus_code() == 401) {
+                            if (error.getErrors() != null) {
+                                msg.setTitle(error.getMessage());
+
+                                if (error.getErrors().getUsername() != null) {
+                                    msg.setMessage("Su nombre de usuario no debe contener más de 8 caracteres");
+                                } else if (error.getErrors().getPassword() != null) {
+                                    msg.setMessage("El formato de su contraseña es inválido");
+                                }
+
+                            } else {
+                                msg.setTitle(error.getMessage() + ".");
+                            }
+                        }
+
+                        msg.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+
+                        AlertDialog showMsg = msg.create();
+                        showMsg.show();
                     }
                 }
 
                 @Override
                 public void onFailure(Call<InicioSesionRespWS> call, Throwable t) {
-                    Log.d("retrofit", "Respuesta fallida, ni body hay :/");
                     Log.d("retrofit", "Error: " + t.getMessage());
                 }
             });
@@ -152,5 +180,29 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
         }
 
         return uniqueID;
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder msg = new AlertDialog.Builder(InicioSesion.this);
+        msg.setTitle("Salir de la aplicación");
+        msg.setMessage("¿Está seguro de querer salir de la aplicación?");
+
+        msg.setPositiveButton("Salir", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+        msg.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog showMsg = msg.create();
+        showMsg.show();
     }
 }
