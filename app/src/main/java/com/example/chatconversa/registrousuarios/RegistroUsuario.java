@@ -1,7 +1,9 @@
 package com.example.chatconversa.registrousuarios;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -9,9 +11,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.chatconversa.Bienvenida_activity;
 import com.example.chatconversa.R;
 import com.example.chatconversa.ServicioWeb;
+import com.example.chatconversa.errors.ErrorResponse;
 import com.example.chatconversa.iniciosesion.InicioSesion;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
@@ -141,24 +143,71 @@ public class RegistroUsuario extends AppCompatActivity {
                     Log.d("retrofit", resp.getMessage());
                     Log.d("retrofit", resp.toString());
 
-                    //luego del registro exitoso se envia a la actividad de inicio y finaliza la actividad de registro
-                    initInicio();
-                    finish();
+                    AlertDialog.Builder createdMsg = new AlertDialog.Builder(RegistroUsuario.this);
+                    createdMsg.setTitle(resp.getMessage() + "!");
+                    createdMsg.setMessage("¿Desea iniciar sesión o registrar otro usuario?");
+
+                    createdMsg.setPositiveButton("Iniciar sesión", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent initInicioSesion = new Intent(RegistroUsuario.this, InicioSesion.class);
+                            startActivity(initInicioSesion);
+                            finish();
+                        }
+                    });
+
+                    createdMsg.setNeutralButton("Permanecer aquí", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    AlertDialog showCreatedMsg = createdMsg.create();
+                    showCreatedMsg.show();
+
                 } else {
 
-                    Log.d("retrofit", "Content type: " + response.errorBody().contentType().toString());
-
                     Gson gson = new Gson();
-                    ErrorRegistroUsuario error = new ErrorRegistroUsuario();
+                    ErrorResponse error = new ErrorResponse();
 
                     try {
-                        error = gson.fromJson(response.errorBody().string(), ErrorRegistroUsuario.class);
+                        error = gson.fromJson(response.errorBody().string(), ErrorResponse.class);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
-                    Log.d("retrofit", "Error body convert: " + error);
+                    AlertDialog.Builder msg = new AlertDialog.Builder(RegistroUsuario.this);
+                    msg.setTitle(error.getMessage());
 
+                    if (error.getStatus_code() == 400) {
+                        if (error.getErrors().getUsername() != null) {
+                            msg.setMessage("El nombre de usuario ingresado ya existe!");
+                            nombreUsuario.setError("Ingrese un nombre de usuario distinto para continuar!");
+
+                        } else if (error.getErrors().getEmail() != null) {
+                            msg.setMessage("Ya existe una cuenta creada con el e-mail ingresado.");
+                            email.setError("Ingrese un e-mail distinto para continuar!");
+
+                        } else if (error.getErrors().getToken_enterprise() != null) {
+                            msg.setMessage("El formato de token de empresa ingresado es inválido.");
+                            tokenEmpresa.setError("El token ingresado no es válido!");
+                        }
+
+                    } else if (error.getStatus_code() == 401) {
+                        msg.setMessage("El token de empresa ingresado existe, pero no se encuentra activo.");
+
+                    }
+
+                    msg.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    AlertDialog showMsg = msg.create();
+                    showMsg.show();
                 }
             }
 
@@ -167,5 +216,29 @@ public class RegistroUsuario extends AppCompatActivity {
                 Log.d("retrofit", "Error: " + t.getMessage());
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder msg = new AlertDialog.Builder(RegistroUsuario.this);
+        msg.setTitle("Salir de la aplicación");
+        msg.setMessage("¿Está seguro de querer salir de la aplicación?");
+
+        msg.setPositiveButton("Salir", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+        msg.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog showMsg = msg.create();
+        showMsg.show();
     }
 }

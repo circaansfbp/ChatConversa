@@ -1,23 +1,19 @@
-package com.example.chatconversa.iniciosesion;
-
-import com.example.chatconversa.User;
+package com.example.chatconversa.errors;
 
 import java.util.Objects;
 
-public class InicioSesionRespWS {
+public class ErrorResponse {
     private int status_code;
     private String message;
-    private String token;
-    private User data;
+    private Errors errors;
 
-    public InicioSesionRespWS(int status_code, String message, String token, User data) {
+    public ErrorResponse(int status_code, String message, Errors errors) {
         this.status_code = status_code;
         this.message = message;
-        this.token = token;
-        this.data = data;
+        this.errors = errors;
     }
 
-    public InicioSesionRespWS() { }
+    public ErrorResponse() { }
 
     public int getStatus_code() {
         return status_code;
@@ -35,45 +31,35 @@ public class InicioSesionRespWS {
         this.message = message;
     }
 
-    public String getToken() {
-        return token;
+    public Errors getErrors() {
+        return errors;
     }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public User getData() {
-        return data;
-    }
-
-    public void setData(User data) {
-        this.data = data;
+    public void setErrors(Errors errors) {
+        this.errors = errors;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        InicioSesionRespWS that = (InicioSesionRespWS) o;
+        ErrorResponse that = (ErrorResponse) o;
         return status_code == that.status_code &&
                 Objects.equals(message, that.message) &&
-                Objects.equals(token, that.token) &&
-                Objects.equals(data, that.data);
+                Objects.equals(errors, that.errors);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(status_code, message, token, data);
+        return Objects.hash(status_code, message, errors);
     }
 
     @Override
     public String toString() {
-        return "InicioSesionRespWS{" +
+        return "ErrorResponse{" +
                 "status_code=" + status_code +
                 ", message='" + message + '\'' +
-                ", token='" + token + '\'' +
-                ", data=" + data +
+                ", errors=" + errors +
                 '}';
     }
 }
