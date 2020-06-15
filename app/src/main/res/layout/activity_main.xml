@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".iniciosesion.InicioSesion">
+    tools:context=".iniciosesion.InicioSesion" >
 
     <TextView
         android:layout_width="match_parent"
@@ -52,19 +52,20 @@
             android:layout_height="wrap_content"
             android:maxLength="12" />
     </com.google.android.material.textfield.TextInputLayout>
+
     <RadioButton
         android:id="@+id/RBsesion"
         android:hint="No cerrar sesión"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginHorizontal="110dp"></RadioButton>
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="130dp"></RadioButton>
 
     <Button
         android:id="@+id/iniciarSesion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginHorizontal="110dp"
         android:text="Iniciar Sesión"
         />

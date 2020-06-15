@@ -98,10 +98,11 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    //guarda el estado del radio button en la activity
     public void guardarEstadoButton(){
         SharedPreferences preferences = getSharedPreferences(STRING_PREFERENCES,MODE_PRIVATE);
         preferences.edit().putBoolean(PREFERENCES_ESTADO_BUTTON_SESION,rbsesion.isChecked()).apply();
-        //guarda el estado del radio button en la activity
+
     }
     //verificar estado del radio button
     public boolean obtenerEstadoRadioButton(){
@@ -121,9 +122,10 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
         startActivity(bienvenida);
     }
 
-    /**/
+    /*Al hacer click en el button para iniciar sesion*/
     public void onClick(View v) {
 
+        /*Verifica ambos input para evitar errores, si todo está correcto, procede. */
         if (TextUtils.isEmpty(username.getText()) || username.getText().length() < 4) {
             if (TextUtils.isEmpty(username.getText())) {
                 username.setError("Ingrese su nombre de usuario para continuar!");
@@ -144,7 +146,6 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
         } else {
 
             final Call<InicioSesionRespWS> respuesta = servicio.iniciarSesion(username.getText().toString(), password.getText().toString(), id(this));
-
             respuesta.enqueue(new Callback<InicioSesionRespWS>() {
                 @Override
                 public void onResponse(Call<InicioSesionRespWS> call, Response<InicioSesionRespWS> response) {
@@ -152,14 +153,10 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
                     guardarEstadoButton();
 
                     if (response.isSuccessful() && response != null && response.body() != null) {
-                        InicioSesionRespWS resp = response.body();
-                        //DEBE LLEVAR A OTRA ACTIVIDAD QUE REPRESENTARA LA SESION INICIADA
-                        Log.d("retrofit", resp.getMessage());
-                        Log.d("retrofit", resp.toString());
                         initBienvenida();
                         finish();
-                    } else {
 
+                    } else {
                         Gson gson = new Gson();
                         ErrorResponse error = new ErrorResponse();
 
@@ -201,8 +198,6 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
                         AlertDialog showMsg = msg.create();
                         showMsg.show();
                     }
-                   /* finalizar la actividad luego de loggearse
-                    finish();  */
                 }
 
                 @Override
@@ -231,6 +226,7 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
         return uniqueID;
     }
 
+    //Al presionar el botón para ir atrás
     @Override
     public void onBackPressed() {
         AlertDialog.Builder msg = new AlertDialog.Builder(InicioSesion.this);

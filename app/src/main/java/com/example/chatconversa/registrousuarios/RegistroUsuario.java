@@ -41,6 +41,7 @@ public class RegistroUsuario extends AppCompatActivity {
 
     private Pattern patternPassword = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{6,12}$");
     private Pattern patternToken = Pattern.compile("^[A-Z\\d]{6,6}$");
+    private Pattern patternRun = Pattern.compile("^[0-9]+$");
 
     private ServicioWeb servicio;
 
@@ -73,12 +74,13 @@ public class RegistroUsuario extends AppCompatActivity {
                         apellido.setError("Debe ingresar su apellido para continuar!");
                     }
 
-                } else if (TextUtils.isEmpty(run.getText()) || run.getText().length() < 7) {
-                    //FALTA RESTRINGIR INGRESO DE PUNTOS (.) Y GUION (-)
+                } else if (TextUtils.isEmpty(run.getText()) || run.getText().length() < 7 || !patternRun.matcher(run.getText().toString()).matches()) {
                     if (TextUtils.isEmpty(run.getText())) {
                         run.setError("Debe ingresar su RUN para continuar");
-                    } else {
+                    } else if (run.getText().length() < 7){
                         run.setError("Mínimo 7 caracteres requeridos!");
+                    } else {
+                        run.setError("Ingrese su RUN sin puntos ni guión!");
                     }
 
                 } else if (TextUtils.isEmpty(nombreUsuario.getText()) || nombreUsuario.getText().length() < 4) {
@@ -120,12 +122,6 @@ public class RegistroUsuario extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    /*Metodo para ir a la actividad inicio de sesion*/
-    public void initInicio() {
-        Intent inicioS = new Intent(RegistroUsuario.this, InicioSesion.class);
-        startActivity(inicioS);
     }
 
     public void initRegistro() {
