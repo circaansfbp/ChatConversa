@@ -122,6 +122,12 @@ public class RegistroUsuario extends AppCompatActivity {
         });
     }
 
+    /*Metodo para ir a la actividad inicio de sesion*/
+    public void initInicio() {
+        Intent inicioS = new Intent(RegistroUsuario.this, InicioSesion.class);
+        startActivity(inicioS);
+    }
+
     public void initRegistro() {
         final Call<RegistroUsuarioRespWS> respuesta = servicio.registerUser(nombre.getText().toString(), apellido.getText().toString(),
                 run.getText().toString(), nombreUsuario.getText().toString(), email.getText().toString(), contraseña.getText().toString(),

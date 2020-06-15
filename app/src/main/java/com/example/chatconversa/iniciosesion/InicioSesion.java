@@ -12,7 +12,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioButton;
 
+import com.example.chatconversa.Bienvenida_activity;
 import com.example.chatconversa.R;
 import com.example.chatconversa.ServicioWeb;
 import com.example.chatconversa.errors.ErrorResponse;
@@ -40,6 +42,10 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
     private TextInputEditText password;
     private Button iniciarBtn;
     private Button registrarBtn;
+    private RadioButton rbsesion;
+    private boolean isActivateRadioButtom;
+    private static final String STRING_PREFERENCES = "chatconversa.iniciosesion";
+    private static final String PREFERENCES_ESTADO_BUTTON_SESION = "estado.button.sesion";
 
     private ServicioWeb servicio;
 
@@ -48,11 +54,18 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (obtenerEstadoRadioButton()){
+            initBienvenida();
+            finish();
+        }
+
         /*Se inflan los objetos*/
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
         iniciarBtn = findViewById(R.id.iniciarSesion);
         registrarBtn = findViewById(R.id.inicio_sesion_registrarse_btn);
+        rbsesion = findViewById(R.id.RBsesion);
+        isActivateRadioButtom = rbsesion.isChecked(); //guardara el valor desactivado
 
         /*Llamado al servicio web*/
         Retrofit retrofit = new Retrofit.Builder().baseUrl("http://chat-conversa.unnamed-chile.com/ws/user/")
@@ -67,8 +80,33 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View c) {
                 initRegistroUsuario();
+                finish();
             }
         });
+
+        //hacer click en el boton para mantener sesion activa
+        rbsesion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //si la variable del boton esta activada, desactivamos el boton
+                if (isActivateRadioButtom){
+                    rbsesion.setChecked(false);
+                }isActivateRadioButtom = rbsesion.isChecked();
+            }
+        });
+
+    }
+
+    public void guardarEstadoButton(){
+        SharedPreferences preferences = getSharedPreferences(STRING_PREFERENCES,MODE_PRIVATE);
+        preferences.edit().putBoolean(PREFERENCES_ESTADO_BUTTON_SESION,rbsesion.isChecked()).apply();
+        //guarda el estado del radio button en la activity
+    }
+    //verificar estado del radio button
+    public boolean obtenerEstadoRadioButton(){
+        SharedPreferences preferences = getSharedPreferences(STRING_PREFERENCES,MODE_PRIVATE);
+        return preferences.getBoolean(PREFERENCES_ESTADO_BUTTON_SESION, false);
     }
 
     /*Metodo para ir a la RegistroUsuario*/
@@ -76,6 +114,11 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
         Intent registroUsuario = new Intent(InicioSesion.this, RegistroUsuario.class);
         startActivity(registroUsuario);
         finish();
+    }
+    /*Metodo para ir a la actividad de Bienvenida*/
+    public void initBienvenida() {
+        Intent bienvenida = new Intent(InicioSesion.this, Bienvenida_activity.class);
+        startActivity(bienvenida);
     }
 
     /**/
@@ -105,12 +148,16 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
             respuesta.enqueue(new Callback<InicioSesionRespWS>() {
                 @Override
                 public void onResponse(Call<InicioSesionRespWS> call, Response<InicioSesionRespWS> response) {
+
+                    guardarEstadoButton();
+
                     if (response.isSuccessful() && response != null && response.body() != null) {
                         InicioSesionRespWS resp = response.body();
                         //DEBE LLEVAR A OTRA ACTIVIDAD QUE REPRESENTARA LA SESION INICIADA
                         Log.d("retrofit", resp.getMessage());
                         Log.d("retrofit", resp.toString());
-
+                        initBienvenida();
+                        finish();
                     } else {
 
                         Gson gson = new Gson();
@@ -154,6 +201,8 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
                         AlertDialog showMsg = msg.create();
                         showMsg.show();
                     }
+                   /* finalizar la actividad luego de loggearse
+                    finish();  */
                 }
 
                 @Override

@@ -52,6 +52,13 @@
             android:layout_height="wrap_content"
             android:maxLength="12" />
     </com.google.android.material.textfield.TextInputLayout>
+    <RadioButton
+        android:id="@+id/RBsesion"
+        android:hint="No cerrar sesión"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="110dp"></RadioButton>
 
     <Button
         android:id="@+id/iniciarSesion"
