@@ -44,15 +44,30 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
     private Button registrarBtn;
     private RadioButton rbsesion;
     private boolean isActivateRadioButtom;
+
     private static final String STRING_PREFERENCES = "chatconversa.iniciosesion";
     private static final String PREFERENCES_ESTADO_BUTTON_SESION = "estado.button.sesion";
 
+    /**Datos del usuario*/
+    private String accessToken;
+    private int userID;
+    private String usernameWSR;
+
+    /**Shared Preferences*/
+    public static final String SHARED_PREFS = "sharedPrefs";
+    public static final String ACCESS_TOKEN = "accessToken";
+    public static final String USER_ID = "userID";
+    public static final String USERNAME = "username";
+
     private ServicioWeb servicio;
+
+    /**BOTÓN PROVISIONAL PARA PROBAR RECUPERACIÓN DE MENSAJES DESDE EL WEB SERVICE*/
+    private Button goToBienvenidaActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_inicio_sesion);
 
         if (obtenerEstadoRadioButton()){
             initBienvenida();
@@ -66,6 +81,17 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
         registrarBtn = findViewById(R.id.inicio_sesion_registrarse_btn);
         rbsesion = findViewById(R.id.RBsesion);
         isActivateRadioButtom = rbsesion.isChecked(); //guardara el valor desactivado
+
+        /**PROVISIONAL*/
+        goToBienvenidaActivity = findViewById(R.id.go_to_bienvenida_btn);
+        goToBienvenidaActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent initBienvenida = new Intent(InicioSesion.this, Bienvenida_activity.class);
+                startActivity(initBienvenida);
+                finish();
+            }
+        });
 
         /*Llamado al servicio web*/
         Retrofit retrofit = new Retrofit.Builder().baseUrl("http://chat-conversa.unnamed-chile.com/ws/user/")
@@ -88,7 +114,6 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
         rbsesion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 //si la variable del boton esta activada, desactivamos el boton
                 if (isActivateRadioButtom){
                     rbsesion.setChecked(false);
@@ -116,10 +141,23 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
         startActivity(registroUsuario);
         finish();
     }
-    /*Metodo para ir a la actividad de Bienvenida*/
+    /**Método para iniciar la actividad que contendrá el chat. Pasa los datos necesarios a la actividad de
+     * bienvenida, la cual desplegará el chat.*/
     public void initBienvenida() {
         Intent bienvenida = new Intent(InicioSesion.this, Bienvenida_activity.class);
+        bienvenida.putExtra("accessToken", accessToken);
+        bienvenida.putExtra("userID", userID);
+        bienvenida.putExtra("username", usernameWSR);
         startActivity(bienvenida);
+    }
+
+    public void activeSessionData(String token, int user_id, String nombreUsuario) {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putString(ACCESS_TOKEN, token).apply();
+        editor.putInt(USER_ID, user_id).apply();
+        editor.putString(USERNAME, nombreUsuario).apply();
     }
 
     /*Al hacer click en el button para iniciar sesion*/
@@ -153,6 +191,14 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
                     guardarEstadoButton();
 
                     if (response.isSuccessful() && response != null && response.body() != null) {
+                        Log.d("retrofit", "DATOS INICIO SESIÓN: " + response.body());
+
+                        activeSessionData(response.body().getToken(), response.body().getData().getId(), response.body().getData().getUsername());
+
+                        accessToken = response.body().getToken();
+                        userID = response.body().getData().getId();
+                        usernameWSR = response.body().getData().getUsername();
+
                         initBienvenida();
                         finish();
 
@@ -209,7 +255,7 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    /*Obtención del UUID del teléfono*/
+    /**Obtención del UUID del teléfono*/
     public synchronized static String id(Context context) {
         if (uniqueID == null) {
             SharedPreferences sharedPrefs = context.getSharedPreferences(PREF_UNIQUE_ID, MODE_PRIVATE);
