@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".RegistrarFotoUsuario">
+
+    <ImageView
+        android:src="@drawable/user_icon"
+        android:id="@+id/contenedorImagen"
+        android:layout_weight="20"
+        android:layout_margin="25dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></ImageView>
+
+    <Button
+        android:id="@+id/tomarFoto"
+        android:layout_margin="15dp"
+        android:layout_weight="2"
+        android:text="Tomar foto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></Button>
+
+    <Button
+        android:id="@+id/subirFoto"
+        android:layout_margin="15dp"
+        android:layout_weight="2"
+        android:text="Subir foto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></Button>
+
+</LinearLayout>

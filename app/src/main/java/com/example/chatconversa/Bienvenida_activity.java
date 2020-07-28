@@ -13,10 +13,30 @@ import com.example.chatconversa.iniciosesion.InicioSesion;
 import com.example.chatconversa.registrousuarios.RegistroUsuario;
 
 public class Bienvenida_activity extends AppCompatActivity {
+
+    private Button cargarFotoUs;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bienvenida_activity);
+
+        cargarFotoUs = findViewById(R.id.irCargarFoto);
+
+        cargarFotoUs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                initCargarFotoActivity();
+                finish();
+            }
+        });
+    }
+
+    /*Metodo para ir a la RegistroUsuario*/
+    public void initCargarFotoActivity() {
+        Intent registroFoto = new Intent(Bienvenida_activity.this, RegistrarFotoUsuario.class);
+        startActivity(registroFoto);
+        finish();
     }
 
     @Override
