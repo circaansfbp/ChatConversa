@@ -54,6 +54,8 @@ public class Bienvenida_activity extends FragmentActivity {
             public void onClick(View v) {
                 initCargarFotoActivity();
                 finish();
+            }
+        });
 
         /**Instancia ViewModel*/
         textViewModel = ViewModelProviders.of(this).get(TextViewModel.class);
@@ -126,9 +128,10 @@ public class Bienvenida_activity extends FragmentActivity {
         Intent registroFoto = new Intent(Bienvenida_activity.this, RegistrarFotoUsuario.class);
         startActivity(registroFoto);
         finish();
+    }
 
     /**Método para enviar un mensaje al chat.*/
-    private void sendMsg() {
+    public void sendMsg() {
         final Call<TextRespWS> respuesta = servicio.sendText(accessToken, userID, usernameWSR, chatBox.getText().toString(),
                 null, 0, 0);
         respuesta.enqueue(new Callback<TextRespWS>() {
