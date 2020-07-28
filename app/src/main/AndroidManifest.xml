@@ -3,6 +3,8 @@
     package="com.example.chatconversa">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -12,7 +14,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Bienvenida_activity"></activity>
+        <activity android:name=".RegistrarFotoUsuario"></activity>
+        <activity android:name=".Bienvenida_activity" />
         <activity android:name=".registrousuarios.RegistroUsuario" />
         <activity android:name=".iniciosesion.InicioSesion">
             <intent-filter>
@@ -21,6 +24,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:authorities="com.example.chatconversa.fileprovider"
+            android:name="androidx.core.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths">
+
+            </meta-data>
+
+        </provider>
+
     </application>
 
 </manifest>

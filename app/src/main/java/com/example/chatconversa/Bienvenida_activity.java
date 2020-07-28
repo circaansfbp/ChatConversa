@@ -27,7 +27,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Bienvenida_activity extends FragmentActivity {
     private ServicioWeb servicio;
-
+    private Button cargarFotoUs;
     private ChatView chatViewFragment;
 
     /**Atributos para enviar mensajes.*/
@@ -45,6 +45,15 @@ public class Bienvenida_activity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bienvenida_activity);
+
+
+        cargarFotoUs = findViewById(R.id.irCargarFoto);
+
+        cargarFotoUs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                initCargarFotoActivity();
+                finish();
 
         /**Instancia ViewModel*/
         textViewModel = ViewModelProviders.of(this).get(TextViewModel.class);
@@ -106,9 +115,17 @@ public class Bienvenida_activity extends FragmentActivity {
             @Override
             public void onFailure(Call<MensajesRespWS> call, Throwable t) {
                 Log.d("retrofit", "Error: " + t.getMessage());
+
             }
         });
     }
+
+
+    /*Metodo para ir a la RegistroUsuario*/
+    public void initCargarFotoActivity() {
+        Intent registroFoto = new Intent(Bienvenida_activity.this, RegistrarFotoUsuario.class);
+        startActivity(registroFoto);
+        finish();
 
     /**Método para enviar un mensaje al chat.*/
     private void sendMsg() {
@@ -130,6 +147,7 @@ public class Bienvenida_activity extends FragmentActivity {
                 Log.d("retrofit", "Error: " + t.getMessage());
             }
         });
+
     }
 
     @Override
