@@ -73,7 +73,6 @@ public class RegistrarFotoUsuario extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (pathPhoto != null){
-
                     subirImagen();
                 }else{
                     Toast.makeText(RegistrarFotoUsuario.this, "No hay foto, debe sacar una",Toast.LENGTH_SHORT).show();
