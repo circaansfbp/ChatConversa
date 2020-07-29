@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -43,6 +44,19 @@ public class RegistrarFotoUsuario extends AppCompatActivity {
     private Button subirFoto;
     private ImageView contenedorFoto;
 
+    private SharedPreferences preferences;
+    //private SharedPreferences.Editor editor;
+
+    /**private String token;
+    private int user_id;
+    private String username;
+    private String image;*/
+
+    private String accessToken;
+    private int userID;
+    private String usernameWSR;
+
+
     private final static int REQUEST_PERMISSION =1001;
     private final static int REQUEST_CAMERA = 1002;
     private final static String[] PERMISSION_REQUIRED =
@@ -50,7 +64,6 @@ public class RegistrarFotoUsuario extends AppCompatActivity {
 
     private String pathPhoto;
     private ServicioWeb servicioWeb;
-
 
 
     @Override
@@ -63,6 +76,12 @@ public class RegistrarFotoUsuario extends AppCompatActivity {
 
         subirFoto = findViewById(R.id.subirFoto);
 
+       // user_id = preferences.getString("Id", "id")
+        SharedPreferences sharedPreferences = getSharedPreferences("sharedPrefs", MODE_PRIVATE);
+        accessToken = sharedPreferences.getString("accessToken", null);
+        userID = sharedPreferences.getInt("userID", -1);
+        usernameWSR = sharedPreferences.getString("username", null);
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://chat-conversa.unnamed-chile.com/ws/user/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -73,7 +92,6 @@ public class RegistrarFotoUsuario extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (pathPhoto != null){
-
                     subirImagen();
                 }else{
                     Toast.makeText(RegistrarFotoUsuario.this, "No hay foto, debe sacar una",Toast.LENGTH_SHORT).show();
@@ -91,17 +109,23 @@ public class RegistrarFotoUsuario extends AppCompatActivity {
     private void subirImagen(){
         File archivoImagen = new File(pathPhoto);
 
-        RequestBody imagen = RequestBody.create(MediaType.parse("multipart/form-data"), archivoImagen);
+        RequestBody image = RequestBody.create(MediaType.parse("multipart/form-data"), archivoImagen);
 
-        MultipartBody.Part file = MultipartBody.Part.createFormData("user_image", archivoImagen.getName(), imagen);
+        MultipartBody.Part file = MultipartBody.Part.createFormData("user_image", archivoImagen.getName(), image);
 
-        RequestBody nombre = RequestBody.create(MediaType.parse("multipart/form-data"), "Móviles 2020");
+        RequestBody id = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(userID));
 
-        servicioWeb.subirImage(file, nombre).enqueue(new Callback<RegistroFotoRespWS>() { /**faltan los parametros/contenedores*/
+        RequestBody nombreUsuario = RequestBody.create(MediaType.parse("multipart/form-data"),usernameWSR);
+
+        String auth = "Bearer " + accessToken;
+
+        final Call<RegistroFotoRespWS> resp = servicioWeb.subirImage(auth,id,nombreUsuario,file);
+        resp.enqueue(new Callback<RegistroFotoRespWS>() {
             @Override
             public void onResponse(Call<RegistroFotoRespWS> call, Response<RegistroFotoRespWS> response) {
                 RegistroFotoRespWS registroFotoRespWS = response.body();
                 Log.d("EXITO", "TOSTRING: " + registroFotoRespWS.toString());
+                
             }
 
             @Override
@@ -109,7 +133,6 @@ public class RegistrarFotoUsuario extends AppCompatActivity {
                 Log.d("ERROR", "MSG: " + t.getMessage());
             }
         });
-
     }
 
     private boolean verifyPermission(){

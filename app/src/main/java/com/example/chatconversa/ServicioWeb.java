@@ -30,8 +30,8 @@ public interface ServicioWeb {
 
     @Multipart
     @POST("load/image")
-    Call<RegistroFotoRespWS> subirImage(@Header("Authorization") String authHeader, @Part("user_id") RequestBody id, @Part("username")RequestBody username,
-                                         @Part MultipartBody.Part user_image);
+    Call<RegistroFotoRespWS> subirImage(@Header("Authorization") String auth, @Part("user_id") RequestBody id, @Part("username")RequestBody nombreUsuario,
+                                         @Part MultipartBody.Part image);
     @FormUrlEncoded
     @POST("get")
     Call<MensajesRespWS> getLastThirtyMessages(@Header("Authorization") String accessToken, @Field("user_id") int userID, @Field("username") String username);
