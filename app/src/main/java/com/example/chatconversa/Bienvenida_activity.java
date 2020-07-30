@@ -1,5 +1,6 @@
 package com.example.chatconversa;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
@@ -9,6 +10,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -175,5 +179,37 @@ public class Bienvenida_activity extends FragmentActivity {
 
         AlertDialog showMsg = msg.create();
         showMsg.show();
+    }
+
+    /**se infla el menu*/
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+    /**casos de seleccion del menu*/
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.activityBienvenida:
+                Intent intent = new Intent(Bienvenida_activity.this, Bienvenida_activity.class);
+                startActivity(intent);
+                finish();
+                return false;
+            case R.id.activityCargarFoto:
+                Intent intent2 = new Intent(Bienvenida_activity.this, RegistrarFotoUsuario.class);
+                startActivity(intent2);
+                finish();
+                return false;
+            case R.id.activityIntegrantes:
+                Intent intent3 = new Intent(Bienvenida_activity.this, TeamInfo.class);
+                startActivity(intent3);
+                finish();
+                return false;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
     }
 }
