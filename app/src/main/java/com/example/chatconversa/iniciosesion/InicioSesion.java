@@ -151,6 +151,7 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
         startActivity(bienvenida);
     }
 
+    /**Método que guarda los datos necesarios del usuario para mantener su sesión activa (su token, ID y username)*/
     public void activeSessionData(String token, int user_id, String nombreUsuario) {
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
