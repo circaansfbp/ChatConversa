@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,11 +28,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.chatconversa.errors.ErrorResponse;
-import com.example.chatconversa.registrousuarios.RegistroUsuario;
-import com.example.chatconversa.registrousuarios.RegistroUsuarioRespWS;
-import com.example.chatconversa.sesionactiva.chatview.ChatView;
-import com.google.gson.Gson;
+import com.example.chatconversa.registrarfotousuario.RegistroFotoRespWS;
+import com.example.chatconversa.sesionactiva.Bienvenida_activity;
+import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeRespWS;
+import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeViewModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,24 +47,22 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class RegistrarFotoUsuario extends AppCompatActivity {
+public class SacarFoto extends AppCompatActivity {
 
+    /**Tomar y subir la foto de perfil del usuario.*/
     private Button tomarFoto;
     private Button subirFoto;
     private ImageView contenedorFoto;
 
-    private SharedPreferences preferences;
-    //private SharedPreferences.Editor editor;
+    /**Para enviar la foto al chat.*/
+    private Button enviarFotoChat;
 
-    /**private String token;
-    private int user_id;
-    private String username;
-    private String image;*/
-
+    /**Datos necesarios para subir la imagen al servicio web.*/
     private String accessToken;
     private int userID;
     private String usernameWSR;
 
+    private EnviarMensajeViewModel imageViewModel;
 
     private final static int REQUEST_PERMISSION =1001;
     private final static int REQUEST_CAMERA = 1002;
@@ -74,38 +72,51 @@ public class RegistrarFotoUsuario extends AppCompatActivity {
     private String pathPhoto;
     private ServicioWeb servicioWeb;
 
-    Data data;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registrar_foto_usuario);
+        setContentView(R.layout.activity_sacar_foto);
 
         tomarFoto = findViewById(R.id.tomarFoto);
         contenedorFoto = findViewById(R.id.contenedorImagen);
-
         subirFoto = findViewById(R.id.subirFoto);
+        enviarFotoChat = findViewById(R.id.enviar_foto_chat);
 
-       // user_id = preferences.getString("Id", "id")
+        /**Instancia ViewModel*/
+        imageViewModel = ViewModelProviders.of(this).get(EnviarMensajeViewModel.class);
+
+        /**Recuperar los datos del usuario desde las SharedPreferences.*/
         SharedPreferences sharedPreferences = getSharedPreferences("sharedPrefs", MODE_PRIVATE);
         accessToken = sharedPreferences.getString("accessToken", null);
         userID = sharedPreferences.getInt("userID", -1);
         usernameWSR = sharedPreferences.getString("username", null);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://chat-conversa.unnamed-chile.com/ws/user/")
+                .baseUrl("http://chat-conversa.unnamed-chile.com/ws/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         servicioWeb = retrofit.create(ServicioWeb.class);
 
+        /**Para subir la foto al servicio web.*/
         subirFoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (pathPhoto != null){
                     subirImagen();
                 }else{
-                    Toast.makeText(RegistrarFotoUsuario.this, "No hay foto, debe sacar una",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SacarFoto.this, "No hay foto, debe sacar una",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        /**Para enviar la foto al chat.*/
+        enviarFotoChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (pathPhoto != null) {
+                    sendPicToChat();
+                } else {
+                    Toast.makeText(SacarFoto.this, "Debe sacar una foto primero!",Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -117,6 +128,7 @@ public class RegistrarFotoUsuario extends AppCompatActivity {
         }
     }
 
+    /**Petición al servicio web para subir la foto de perfil del usuario.*/
     private void subirImagen(){
         File archivoImagen = new File(pathPhoto);
 
@@ -137,11 +149,31 @@ public class RegistrarFotoUsuario extends AppCompatActivity {
                 Log.d("retrofit", "Status code: " + response.code());
 
                 if (response.isSuccessful() && response != null && response.body() != null) {
-                    RegistroFotoRespWS resp = response.body();
-                    Log.d("retrofit", resp.getMessage());
-                    Log.d("retrofit", resp.toString());
-                    Log.d("Exito", resp.getData().getImage());
-                    Log.d("Exito", resp.getData().getThumbnail());
+                    RegistroFotoRespWS registroFotoRespWS = response.body();
+                    Log.d("EXITO", "TOSTRING: " + registroFotoRespWS.toString());
+
+                    AlertDialog.Builder msg = new AlertDialog.Builder(SacarFoto.this);
+                    msg.setTitle("Foto registrada!");
+                    msg.setMessage("Su foto de perfil ha sido actualizada correctamente!");
+
+                    msg.setPositiveButton("Volver al chat", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent backToChat = new Intent(SacarFoto.this, Bienvenida_activity.class);
+                            startActivity(backToChat);
+                            finish();
+                        }
+                    });
+
+                    msg.setNegativeButton("Tomar otra foto", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    AlertDialog showMsg = msg.create();
+                    showMsg.show();
                     
                 }
             }
@@ -149,6 +181,59 @@ public class RegistrarFotoUsuario extends AppCompatActivity {
             @Override
             public void onFailure(Call<RegistroFotoRespWS> call, Throwable t) {
                 Log.d("ERROR", "MSG: " + t.getMessage());
+            }
+        });
+    }
+
+    /**Método para enviar la foto tomada al chat.*/
+    private void sendPicToChat() {
+        File archivoImagen = new File(pathPhoto);
+        RequestBody image = RequestBody.create(MediaType.parse("multipart/form-data"), archivoImagen);
+        MultipartBody.Part file = MultipartBody.Part.createFormData("image", archivoImagen.getName(), image);
+
+        accessToken = "Bearer " + accessToken;
+        RequestBody user_id = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(userID));
+        RequestBody nombreUsuario = RequestBody.create(MediaType.parse("multipart/form-data"), usernameWSR);
+
+        final Call<EnviarMensajeRespWS> respuesta = servicioWeb.sendImage(accessToken, user_id, nombreUsuario,
+                null, file);
+        respuesta.enqueue(new Callback<EnviarMensajeRespWS>() {
+            @Override
+            public void onResponse(Call<EnviarMensajeRespWS> call, Response<EnviarMensajeRespWS> response) {
+                if (response != null && response.body() != null) {
+                    EnviarMensajeRespWS datos = response.body();
+                    Log.d("retrofit", "RESPUESTA SERVICIO WEB: " + datos);
+
+                    imageViewModel.setWebServiceResponse(datos);
+
+                    AlertDialog.Builder msg = new AlertDialog.Builder(SacarFoto.this);
+                    msg.setTitle("Foto enviada!");
+                    msg.setMessage("Su foto ha sido enviada al chat!");
+
+                    msg.setPositiveButton("Volver al chat", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent backToChat = new Intent(SacarFoto.this, Bienvenida_activity.class);
+                            startActivity(backToChat);
+                            finish();
+                        }
+                    });
+
+                    msg.setNegativeButton("Tomar otra foto", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    AlertDialog showMsg = msg.create();
+                    showMsg.show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<EnviarMensajeRespWS> call, Throwable t) {
+                Log.d("retrofit", "MSG: " + t.getMessage());
             }
         });
     }
@@ -269,17 +354,17 @@ public class RegistrarFotoUsuario extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.activityBienvenida:
-                Intent intent = new Intent(RegistrarFotoUsuario.this, Bienvenida_activity.class);
+                Intent intent = new Intent(SacarFoto.this, Bienvenida_activity.class);
                 startActivity(intent);
                 finish();
                 return false;
             case R.id.activityCargarFoto:
-                Intent intent2 = new Intent(RegistrarFotoUsuario.this, RegistrarFotoUsuario.class);
+                Intent intent2 = new Intent(SacarFoto.this, SacarFoto.class);
                 startActivity(intent2);
                 finish();
                 return false;
             case R.id.activityIntegrantes:
-                Intent intent3 = new Intent(RegistrarFotoUsuario.this, TeamInfo.class);
+                Intent intent3 = new Intent(SacarFoto.this, TeamInfo.class);
                 startActivity(intent3);
                 finish();
                 return false;

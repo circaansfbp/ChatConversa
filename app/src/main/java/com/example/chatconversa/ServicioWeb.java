@@ -1,9 +1,10 @@
 package com.example.chatconversa;
 
 import com.example.chatconversa.iniciosesion.InicioSesionRespWS;
+import com.example.chatconversa.registrarfotousuario.RegistroFotoRespWS;
 import com.example.chatconversa.registrousuarios.RegistroUsuarioRespWS;
 import com.example.chatconversa.sesionactiva.chatview.MensajesRespWS;
-import com.example.chatconversa.sesionactiva.enviarchat.TextRespWS;
+import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeRespWS;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -29,18 +30,22 @@ public interface ServicioWeb {
                                               @Field("password") String password, @Field("token_enterprise") String tokenEmpresa);
 
     @Multipart
-    @POST("load/image")
+    @POST("user/load/image")
     Call<RegistroFotoRespWS> subirImage(@Header("Authorization") String auth, @Part("user_id") RequestBody id, @Part("username")RequestBody nombreUsuario,
-                                         @Part MultipartBody.Part image);
+                                        @Part MultipartBody.Part image);
     @FormUrlEncoded
     @POST("get")
     Call<MensajesRespWS> getLastThirtyMessages(@Header("Authorization") String accessToken, @Field("user_id") int userID, @Field("username") String username);
 
     @FormUrlEncoded
     @POST("send")
-    Call<TextRespWS> sendText(@Header("Authorization") String accessToken, @Field("user_id") int userID,
-                              @Field("username") String username, @Field("message") String message,
-                              @Field("image") String imageURL, @Field("latitude") int latitude,
-                              @Field("longitude") int longitude);
+    Call<EnviarMensajeRespWS> sendText(@Header("Authorization") String accessToken, @Field("user_id") int userID,
+                                       @Field("username") String username, @Field("message") String message);
+
+    @Multipart
+    @POST("message/send")
+    Call<EnviarMensajeRespWS> sendImage(@Header("Authorization") String accessToken, @Part("user_id") RequestBody userID,
+                                        @Part("username") RequestBody username, @Part("message") RequestBody message,
+                                        @Part MultipartBody.Part image);
 
 }

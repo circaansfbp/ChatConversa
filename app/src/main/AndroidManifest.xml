@@ -15,8 +15,8 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity android:name=".TeamInfo"></activity>
-        <activity android:name=".RegistrarFotoUsuario" />
-        <activity android:name=".Bienvenida_activity" />
+        <activity android:name=".SacarFoto" />
+        <activity android:name=".sesionactiva.Bienvenida_activity" />
         <activity android:name=".registrousuarios.RegistroUsuario" />
         <activity android:name=".iniciosesion.InicioSesion">
             <intent-filter>

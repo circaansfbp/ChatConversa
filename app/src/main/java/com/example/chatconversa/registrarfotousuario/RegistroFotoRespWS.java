@@ -1,4 +1,4 @@
-package com.example.chatconversa;
+package com.example.chatconversa.registrarfotousuario;
 
 import java.util.Objects;
 

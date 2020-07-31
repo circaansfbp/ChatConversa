@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 
-import com.example.chatconversa.Bienvenida_activity;
+import com.example.chatconversa.sesionactiva.Bienvenida_activity;
 import com.example.chatconversa.R;
 import com.example.chatconversa.ServicioWeb;
 import com.example.chatconversa.errors.ErrorResponse;
@@ -60,10 +60,7 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
     public static final String USERNAME = "username";
 
     private ServicioWeb servicio;
-
-    /**BOTÓN PROVISIONAL PARA PROBAR RECUPERACIÓN DE MENSAJES DESDE EL WEB SERVICE*/
-    private Button goToBienvenidaActivity;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,17 +78,6 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
         registrarBtn = findViewById(R.id.inicio_sesion_registrarse_btn);
         rbsesion = findViewById(R.id.RBsesion);
         isActivateRadioButtom = rbsesion.isChecked(); //guardara el valor desactivado
-
-        /**PROVISIONAL*/
-        goToBienvenidaActivity = findViewById(R.id.go_to_bienvenida_btn);
-        goToBienvenidaActivity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent initBienvenida = new Intent(InicioSesion.this, Bienvenida_activity.class);
-                startActivity(initBienvenida);
-                finish();
-            }
-        });
 
         /*Llamado al servicio web*/
         Retrofit retrofit = new Retrofit.Builder().baseUrl("http://chat-conversa.unnamed-chile.com/ws/user/")

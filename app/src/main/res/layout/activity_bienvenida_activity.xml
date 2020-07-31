@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/bg_color"
-    tools:context=".Bienvenida_activity">
+    tools:context=".sesionactiva.Bienvenida_activity">
 
     <FrameLayout
         android:id="@+id/chat_view"
@@ -30,15 +30,15 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="Enviar"
-            android:textSize="16dp"></Button>
+            android:textSize="14dp"></Button>
 
         <Button
             android:id="@+id/irCargarFoto"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="Foto"
-            android:layout_marginLeft="8dp"></Button>
-
+            android:textSize="14dp"
+            android:layout_marginHorizontal="8dp"></Button>
 
     </LinearLayout>
 </LinearLayout>

@@ -9,7 +9,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.example.chatconversa.sesionactiva.chatview.ChatView;
+import com.example.chatconversa.sesionactiva.Bienvenida_activity;
 
 public class TeamInfo extends AppCompatActivity {
 
@@ -36,7 +36,7 @@ public class TeamInfo extends AppCompatActivity {
                 finish();
                 return false;
             case R.id.activityCargarFoto:
-                Intent intent2 = new Intent(TeamInfo.this, RegistrarFotoUsuario.class);
+                Intent intent2 = new Intent(TeamInfo.this, SacarFoto.class);
                 startActivity(intent2);
                 finish();
                 return false;

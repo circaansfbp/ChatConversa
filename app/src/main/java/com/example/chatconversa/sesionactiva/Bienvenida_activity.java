@@ -1,4 +1,4 @@
-package com.example.chatconversa;
+package com.example.chatconversa.sesionactiva;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -16,11 +16,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.chatconversa.iniciosesion.InicioSesion;
+import com.example.chatconversa.R;
+import com.example.chatconversa.SacarFoto;
+import com.example.chatconversa.ServicioWeb;
+import com.example.chatconversa.TeamInfo;
 import com.example.chatconversa.sesionactiva.chatview.ChatView;
 import com.example.chatconversa.sesionactiva.chatview.MensajesRespWS;
-import com.example.chatconversa.sesionactiva.enviarchat.TextRespWS;
-import com.example.chatconversa.sesionactiva.enviarchat.TextViewModel;
+import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeRespWS;
+import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 
 import retrofit2.Call;
@@ -31,8 +34,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Bienvenida_activity extends FragmentActivity {
     private ServicioWeb servicio;
+
+    /**Atributo para cargar la foto de perfil del usuario.*/
     private Button cargarFotoUs;
+
+    /**Fragment que desplegará el chat.*/
     private ChatView chatViewFragment;
+    private MensajesRespWS datosChatViewFragment;
 
     /**Atributos para enviar mensajes.*/
     private TextInputEditText chatBox;
@@ -43,16 +51,15 @@ public class Bienvenida_activity extends FragmentActivity {
     private int userID;
     private String usernameWSR;
 
-    private TextViewModel textViewModel;
+    private EnviarMensajeViewModel textViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bienvenida_activity);
 
-
+        /**Para tomar la foto de perfil del usuario.*/
         cargarFotoUs = findViewById(R.id.irCargarFoto);
-
         cargarFotoUs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,12 +69,11 @@ public class Bienvenida_activity extends FragmentActivity {
         });
 
         /**Instancia ViewModel*/
-        textViewModel = ViewModelProviders.of(this).get(TextViewModel.class);
+        textViewModel = ViewModelProviders.of(this).get(EnviarMensajeViewModel.class);
 
         /**Se inflan los atributos para enviar mensajes.*/
         chatBox = findViewById(R.id.chat_box);
         sendText = findViewById(R.id.send_text);
-
         sendText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,10 +116,10 @@ public class Bienvenida_activity extends FragmentActivity {
             @Override
             public void onResponse(Call<MensajesRespWS> call, Response<MensajesRespWS> response) {
                 if (response != null && response.body() != null) {
-                    MensajesRespWS datos = response.body();
+                    datosChatViewFragment = response.body();
 
                     /**Creación del fragmento que desplegará el chat.*/
-                    chatViewFragment = ChatView.newInstance(datos);
+                    chatViewFragment = ChatView.newInstance(datosChatViewFragment);
                     getSupportFragmentManager().beginTransaction().add(R.id.chat_view, chatViewFragment).commit();
                 }
             }
@@ -129,28 +135,26 @@ public class Bienvenida_activity extends FragmentActivity {
 
     /*Metodo para ir a la RegistroUsuario*/
     public void initCargarFotoActivity() {
-        Intent registroFoto = new Intent(Bienvenida_activity.this, RegistrarFotoUsuario.class);
+        Intent registroFoto = new Intent(Bienvenida_activity.this, SacarFoto.class);
         startActivity(registroFoto);
         finish();
     }
 
     /**Método para enviar un mensaje al chat.*/
     public void sendMsg() {
-        final Call<TextRespWS> respuesta = servicio.sendText(accessToken, userID, usernameWSR, chatBox.getText().toString(),
-                null, 0, 0);
-        respuesta.enqueue(new Callback<TextRespWS>() {
+        final Call<EnviarMensajeRespWS> respuesta = servicio.sendText(accessToken, userID, usernameWSR, chatBox.getText().toString());
+        respuesta.enqueue(new Callback<EnviarMensajeRespWS>() {
             @Override
-            public void onResponse(Call<TextRespWS> call, Response<TextRespWS> response) {
+            public void onResponse(Call<EnviarMensajeRespWS> call, Response<EnviarMensajeRespWS> response) {
                 if (response != null && response.body() != null) {
                     Log.d("retrofit", "RESPUESTA WEB SERVICE: " + response.body().toString());
                     textViewModel.setWebServiceResponse(response.body());
-                    chatViewFragment.showSentText();
                     chatBox.setText("");
                 }
             }
 
             @Override
-            public void onFailure(Call<TextRespWS> call, Throwable t) {
+            public void onFailure(Call<EnviarMensajeRespWS> call, Throwable t) {
                 Log.d("retrofit", "Error: " + t.getMessage());
             }
         });
@@ -198,7 +202,7 @@ public class Bienvenida_activity extends FragmentActivity {
                 finish();
                 return false;
             case R.id.activityCargarFoto:
-                Intent intent2 = new Intent(Bienvenida_activity.this, RegistrarFotoUsuario.class);
+                Intent intent2 = new Intent(Bienvenida_activity.this, SacarFoto.class);
                 startActivity(intent2);
                 finish();
                 return false;
