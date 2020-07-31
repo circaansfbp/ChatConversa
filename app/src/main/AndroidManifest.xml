@@ -14,7 +14,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".RegistrarFotoUsuario"></activity>
+        <activity android:name=".TeamInfo"></activity>
+        <activity android:name=".RegistrarFotoUsuario" />
         <activity android:name=".Bienvenida_activity" />
         <activity android:name=".registrousuarios.RegistroUsuario" />
         <activity android:name=".iniciosesion.InicioSesion">
@@ -24,19 +25,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <provider
-            android:authorities="com.example.chatconversa.fileprovider"
             android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.chatconversa.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths">
-
-            </meta-data>
-
+                android:resource="@xml/file_paths"></meta-data>
         </provider>
-
     </application>
 
 </manifest>

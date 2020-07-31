@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/activity0"
+        android:orderInCategory="100"
+        android:title="MENU"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/activityBienvenida"
+        android:orderInCategory="100"
+        android:title="Chat"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/activityCargarFoto"
+        android:orderInCategory="100"
+        android:title="Cargar Foto"
+        app:showAsAction="never" />
+
+
+    <item
+        android:id="@+id/activityIntegrantes"
+        android:orderInCategory="100"
+        android:title="Acerca de ChatConversa"
+        app:showAsAction="never" />
+
+</menu>
