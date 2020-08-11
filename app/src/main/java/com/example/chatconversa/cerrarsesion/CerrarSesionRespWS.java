@@ -1,19 +1,17 @@
-package com.example.chatconversa.registrousuarios;
+package com.example.chatconversa.cerrarsesion;
 
 import java.util.Objects;
 
-public class RegistroUsuarioRespWS {
+public class CerrarSesionRespWS {
     private int status_code;
     private String message;
-    private User data;
 
-    public RegistroUsuarioRespWS(int status_code, String message, User data) {
+    public CerrarSesionRespWS(int status_code, String message) {
         this.status_code = status_code;
         this.message = message;
-        this.data = data;
     }
 
-    public RegistroUsuarioRespWS() { }
+    public CerrarSesionRespWS() { }
 
     public int getStatus_code() {
         return status_code;
@@ -31,35 +29,25 @@ public class RegistroUsuarioRespWS {
         this.message = message;
     }
 
-    public User getData() {
-        return data;
-    }
-
-    public void setData(User data) {
-        this.data = data;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RegistroUsuarioRespWS that = (RegistroUsuarioRespWS) o;
+        CerrarSesionRespWS that = (CerrarSesionRespWS) o;
         return status_code == that.status_code &&
-                Objects.equals(message, that.message) &&
-                Objects.equals(data, that.data);
+                Objects.equals(message, that.message);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(status_code, message, data);
+        return Objects.hash(status_code, message);
     }
 
     @Override
     public String toString() {
-        return "RegistroUsuarioRespWS{" +
+        return "CerrarSesionRespWS{" +
                 "status_code=" + status_code +
                 ", message='" + message + '\'' +
-                ", data=" + data +
                 '}';
     }
 }

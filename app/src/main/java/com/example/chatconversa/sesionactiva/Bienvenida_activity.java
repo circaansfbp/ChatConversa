@@ -20,6 +20,7 @@ import com.example.chatconversa.R;
 import com.example.chatconversa.SacarFoto;
 import com.example.chatconversa.ServicioWeb;
 import com.example.chatconversa.TeamInfo;
+import com.example.chatconversa.cerrarsesion.CerrarSesionRespWS;
 import com.example.chatconversa.sesionactiva.chatview.ChatView;
 import com.example.chatconversa.sesionactiva.chatview.MensajesRespWS;
 import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeRespWS;
@@ -90,7 +91,7 @@ public class Bienvenida_activity extends FragmentActivity {
 
 
         /**Llamada a la librería retrofit*/
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("http://chat-conversa.unnamed-chile.com/ws/message/")
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("http://chat-conversa.unnamed-chile.com/ws/")
                 .addConverterFactory(GsonConverterFactory.create()).build();
 
         servicio = retrofit.create(ServicioWeb.class);
@@ -211,9 +212,54 @@ public class Bienvenida_activity extends FragmentActivity {
                 startActivity(intent3);
                 finish();
                 return false;
+            case R.id.cerrarSesion:
+                AlertDialog.Builder msg = new AlertDialog.Builder(Bienvenida_activity.this);
+                msg.setTitle("Cerrar Sesión");
+                msg.setMessage("¿Desea cerrar su sesión?");
+
+                msg.setPositiveButton("Cerrar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        logout();
+                    }
+                });
+
+                msg.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                AlertDialog showMsg = msg.create();
+                showMsg.show();
             default:
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    public void logout() {
+        accessToken = "Bearer " + accessToken;
+
+        final Call<CerrarSesionRespWS> respuesta = servicio.cerrarSesion(accessToken, userID, usernameWSR);
+        respuesta.enqueue(new Callback<CerrarSesionRespWS>() {
+            @Override
+            public void onResponse(Call<CerrarSesionRespWS> call, Response<CerrarSesionRespWS> response) {
+                if (response != null && response.body() != null) {
+                    Log.d("retrofit", "CIERRE SESION: " + response.body().toString());
+
+                    SharedPreferences prefs = getSharedPreferences("chatconversa.iniciosesion", MODE_PRIVATE);
+                    prefs.edit().putBoolean("estado.button.sesion", false).apply();
+
+                    Log.d("retrofit", "RADIO BUTTON: " + prefs.getBoolean("estado.button.sesion", false));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CerrarSesionRespWS> call, Throwable t) {
+                Log.d("retrofit", "Error: " + t.getMessage());
+            }
+        });
     }
 }

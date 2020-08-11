@@ -26,4 +26,10 @@
         android:title="Acerca de ChatConversa"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/cerrarSesion"
+        android:orderInCategory="100"
+        android:title="Cerrar Sesión"
+        app:showAsAction="never" />
+
 </menu>
