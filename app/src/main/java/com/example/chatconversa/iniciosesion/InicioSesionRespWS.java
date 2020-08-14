@@ -1,6 +1,6 @@
 package com.example.chatconversa.iniciosesion;
 
-import com.example.chatconversa.User;
+import com.example.chatconversa.registrousuarios.User;
 
 import java.util.Objects;
 

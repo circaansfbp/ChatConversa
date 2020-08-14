@@ -1,5 +1,6 @@
 package com.example.chatconversa;
 
+import com.example.chatconversa.cerrarsesion.CerrarSesionRespWS;
 import com.example.chatconversa.iniciosesion.InicioSesionRespWS;
 import com.example.chatconversa.registrarfotousuario.RegistroFotoRespWS;
 import com.example.chatconversa.registrousuarios.RegistroUsuarioRespWS;
@@ -34,11 +35,11 @@ public interface ServicioWeb {
     Call<RegistroFotoRespWS> subirImage(@Header("Authorization") String auth, @Part("user_id") RequestBody id, @Part("username")RequestBody nombreUsuario,
                                         @Part MultipartBody.Part image);
     @FormUrlEncoded
-    @POST("get")
+    @POST("message/get")
     Call<MensajesRespWS> getLastThirtyMessages(@Header("Authorization") String accessToken, @Field("user_id") int userID, @Field("username") String username);
 
     @FormUrlEncoded
-    @POST("send")
+    @POST("message/send")
     Call<EnviarMensajeRespWS> sendText(@Header("Authorization") String accessToken, @Field("user_id") int userID,
                                        @Field("username") String username, @Field("message") String message);
 
@@ -47,5 +48,10 @@ public interface ServicioWeb {
     Call<EnviarMensajeRespWS> sendImage(@Header("Authorization") String accessToken, @Part("user_id") RequestBody userID,
                                         @Part("username") RequestBody username, @Part("message") RequestBody message,
                                         @Part MultipartBody.Part image);
+
+    @FormUrlEncoded
+    @POST("user/logout")
+    Call<CerrarSesionRespWS> cerrarSesion(@Header("Authorization") String accessToken, @Field("user_id") int userID,
+                                          @Field("username") String username);
 
 }

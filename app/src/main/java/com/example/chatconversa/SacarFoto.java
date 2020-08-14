@@ -28,6 +28,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.chatconversa.cerrarsesion.CerrarSesionRespWS;
+import com.example.chatconversa.iniciosesion.InicioSesion;
 import com.example.chatconversa.registrarfotousuario.RegistroFotoRespWS;
 import com.example.chatconversa.sesionactiva.Bienvenida_activity;
 import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeRespWS;
@@ -368,9 +370,60 @@ public class SacarFoto extends AppCompatActivity {
                 startActivity(intent3);
                 finish();
                 return false;
+            case R.id.cerrarSesion:
+                AlertDialog.Builder msg = new AlertDialog.Builder(SacarFoto.this);
+                msg.setTitle("Cerrar Sesión");
+                msg.setMessage("¿Desea cerrar su sesión?");
+
+                msg.setPositiveButton("Cerrar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        logout();
+                    }
+                });
+
+                msg.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                AlertDialog showMsg = msg.create();
+                showMsg.show();
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
 
+    public void logout() {
+        accessToken = "Bearer " + accessToken;
+
+        final Call<CerrarSesionRespWS> respuesta = servicioWeb.cerrarSesion(accessToken, userID, usernameWSR);
+        respuesta.enqueue(new Callback<CerrarSesionRespWS>() {
+            @Override
+            public void onResponse(Call<CerrarSesionRespWS> call, Response<CerrarSesionRespWS> response) {
+                if (response != null && response.body() != null) {
+                    Log.d("retrofit", "CIERRE SESION: " + response.body().toString());
+
+                    SharedPreferences prefs = getSharedPreferences("chatconversa.iniciosesion", MODE_PRIVATE);
+                    prefs.edit().remove("estado.button.sesion").apply();
+
+                    SharedPreferences dataPrefs = getSharedPreferences("sharedPrefs", MODE_PRIVATE);
+                    dataPrefs.edit().remove("accessToken").apply();
+                    dataPrefs.edit().remove("userID").apply();
+                    dataPrefs.edit().remove("usernameWSR").apply();
+
+                    Intent backToLogin = new Intent(SacarFoto.this, InicioSesion.class);
+                    startActivity(backToLogin);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CerrarSesionRespWS> call, Throwable t) {
+                Log.d("retrofit", "Error: " + t.getMessage());
+            }
+        });
     }
 }
