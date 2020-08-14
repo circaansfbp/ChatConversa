@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 
+import com.example.chatconversa.Mapa;
 import com.example.chatconversa.sesionactiva.Bienvenida_activity;
 import com.example.chatconversa.R;
 import com.example.chatconversa.ServicioWeb;
@@ -33,6 +34,10 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class InicioSesion extends AppCompatActivity implements View.OnClickListener{
+
+    /**PROVISIONAL PARA PROBAR EL MAPA*/
+    private Button openMap;
+
     private static String uniqueID = null;
     private static final String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
 
@@ -78,6 +83,18 @@ public class InicioSesion extends AppCompatActivity implements View.OnClickListe
         registrarBtn = findViewById(R.id.inicio_sesion_registrarse_btn);
         rbsesion = findViewById(R.id.RBsesion);
         isActivateRadioButtom = rbsesion.isChecked(); //guardara el valor desactivado
+
+        /**PROVISIONAL PARA PROBAR EL MAPA*/
+        openMap = findViewById(R.id.mapa_btn);
+        openMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(InicioSesion.this, Mapa.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        /*******************************************************************************/
 
         /*Llamado al servicio web*/
         Retrofit retrofit = new Retrofit.Builder().baseUrl("http://chat-conversa.unnamed-chile.com/ws/user/")
