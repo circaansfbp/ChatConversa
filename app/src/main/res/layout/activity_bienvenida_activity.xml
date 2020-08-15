@@ -12,7 +12,7 @@
         android:id="@+id/chat_view"
         android:layout_width="match_parent"
         android:layout_height="630dp"
-        android:layout_margin="15dp"></FrameLayout>
+        android:layout_marginHorizontal="15dp"></FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,7 +21,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/chat_box"
-            android:layout_width="200dp"
+            android:layout_width="280dp"
             android:layout_height="match_parent"
             android:layout_marginHorizontal="15dp"></com.google.android.material.textfield.TextInputEditText>
 
@@ -31,14 +31,6 @@
             android:layout_height="match_parent"
             android:text="Enviar"
             android:textSize="14dp"></Button>
-
-        <Button
-            android:id="@+id/irCargarFoto"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="Foto"
-            android:textSize="14dp"
-            android:layout_marginHorizontal="8dp"></Button>
 
     </LinearLayout>
 </LinearLayout>

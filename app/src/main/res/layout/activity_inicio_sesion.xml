@@ -81,14 +81,4 @@
         style="@style/Widget.MaterialComponents.Button.TextButton"
         />
 
-    <Button
-        android:id="@+id/mapa_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginHorizontal="110dp"
-        android:text="abrir mapa!"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        />
-
 </LinearLayout>

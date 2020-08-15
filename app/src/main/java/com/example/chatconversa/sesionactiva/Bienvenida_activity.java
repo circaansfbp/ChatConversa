@@ -2,7 +2,7 @@ package com.example.chatconversa.sesionactiva;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.FragmentActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.content.DialogInterface;
@@ -16,11 +16,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.chatconversa.sesionactiva.enviarchat.ubicacion.MapDialog;
 import com.example.chatconversa.R;
 import com.example.chatconversa.SacarFoto;
 import com.example.chatconversa.ServicioWeb;
 import com.example.chatconversa.TeamInfo;
+import com.example.chatconversa.sesionactiva.enviarchat.ubicacion.UbicacionViewModel;
 import com.example.chatconversa.cerrarsesion.CerrarSesionRespWS;
+import com.example.chatconversa.iniciosesion.InicioSesion;
 import com.example.chatconversa.sesionactiva.chatview.ChatView;
 import com.example.chatconversa.sesionactiva.chatview.MensajesRespWS;
 import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeRespWS;
@@ -33,11 +36,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class Bienvenida_activity extends FragmentActivity {
+public class Bienvenida_activity extends AppCompatActivity {
     private ServicioWeb servicio;
-
-    /**Atributo para cargar la foto de perfil del usuario.*/
-    private Button cargarFotoUs;
 
     /**Fragment que desplegará el chat.*/
     private ChatView chatViewFragment;
@@ -54,20 +54,18 @@ public class Bienvenida_activity extends FragmentActivity {
 
     private EnviarMensajeViewModel textViewModel;
 
+    /**Para enviar ubicaciones.*/
+    private MapDialog mapa;
+    private UbicacionViewModel ubicacionViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bienvenida_activity);
 
-        /**Para tomar la foto de perfil del usuario.*/
-        cargarFotoUs = findViewById(R.id.irCargarFoto);
-        cargarFotoUs.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                initCargarFotoActivity();
-                finish();
-            }
-        });
+        /**Ubicaciones*/
+        ubicacionViewModel = ViewModelProviders.of(this).get(UbicacionViewModel.class);
+        mapa = new MapDialog();
 
         /**Instancia ViewModel*/
         textViewModel = ViewModelProviders.of(this).get(EnviarMensajeViewModel.class);
@@ -128,17 +126,8 @@ public class Bienvenida_activity extends FragmentActivity {
             @Override
             public void onFailure(Call<MensajesRespWS> call, Throwable t) {
                 Log.d("retrofit", "Error: " + t.getMessage());
-
             }
         });
-    }
-
-
-    /*Metodo para ir a la RegistroUsuario*/
-    public void initCargarFotoActivity() {
-        Intent registroFoto = new Intent(Bienvenida_activity.this, SacarFoto.class);
-        startActivity(registroFoto);
-        finish();
     }
 
     /**Método para enviar un mensaje al chat.*/
@@ -197,15 +186,13 @@ public class Bienvenida_activity extends FragmentActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
-            case R.id.activityBienvenida:
-                Intent intent = new Intent(Bienvenida_activity.this, Bienvenida_activity.class);
-                startActivity(intent);
-                finish();
-                return false;
             case R.id.activityCargarFoto:
                 Intent intent2 = new Intent(Bienvenida_activity.this, SacarFoto.class);
                 startActivity(intent2);
                 finish();
+                return false;
+            case R.id.enviarUbicacion:
+                mapa.show(this.getSupportFragmentManager(), "MapDialog");
                 return false;
             case R.id.activityIntegrantes:
                 Intent intent3 = new Intent(Bienvenida_activity.this, TeamInfo.class);
@@ -240,19 +227,27 @@ public class Bienvenida_activity extends FragmentActivity {
     }
 
     public void logout() {
-        accessToken = "Bearer " + accessToken;
+        Log.d("retrofit", "entré al método logout");
 
         final Call<CerrarSesionRespWS> respuesta = servicio.cerrarSesion(accessToken, userID, usernameWSR);
         respuesta.enqueue(new Callback<CerrarSesionRespWS>() {
             @Override
             public void onResponse(Call<CerrarSesionRespWS> call, Response<CerrarSesionRespWS> response) {
+                Log.d("retrofit", "entré al método onResponse");
                 if (response != null && response.body() != null) {
                     Log.d("retrofit", "CIERRE SESION: " + response.body().toString());
 
                     SharedPreferences prefs = getSharedPreferences("chatconversa.iniciosesion", MODE_PRIVATE);
-                    prefs.edit().putBoolean("estado.button.sesion", false).apply();
+                    prefs.edit().remove("estado.button.sesion").apply();
 
-                    Log.d("retrofit", "RADIO BUTTON: " + prefs.getBoolean("estado.button.sesion", false));
+                    SharedPreferences dataPrefs = getSharedPreferences("sharedPrefs", MODE_PRIVATE);
+                    dataPrefs.edit().remove("accessToken").apply();
+                    dataPrefs.edit().remove("userID").apply();
+                    dataPrefs.edit().remove("usernameWSR").apply();
+
+                    Intent backToLogin = new Intent(Bienvenida_activity.this, InicioSesion.class);
+                    startActivity(backToLogin);
+                    finish();
                 }
             }
 

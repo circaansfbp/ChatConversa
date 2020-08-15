@@ -33,9 +33,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity
-            android:name=".Mapa"
-            android:label="@string/title_activity_mapa"></activity>
         <activity android:name=".TeamInfo" />
         <activity android:name=".SacarFoto" />
         <activity android:name=".sesionactiva.Bienvenida_activity" />

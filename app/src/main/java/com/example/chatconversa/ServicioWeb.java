@@ -50,6 +50,12 @@ public interface ServicioWeb {
                                         @Part MultipartBody.Part image);
 
     @FormUrlEncoded
+    @POST("message/send")
+    Call<EnviarMensajeRespWS> sendLocation(@Header("Authorization") String accessToken, @Field("user_id") int userID,
+                                           @Field("username") String username, @Field("latitude") double latitude,
+                                           @Field("longitude") double longitude);
+
+    @FormUrlEncoded
     @POST("user/logout")
     Call<CerrarSesionRespWS> cerrarSesion(@Header("Authorization") String accessToken, @Field("user_id") int userID,
                                           @Field("username") String username);
