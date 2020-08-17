@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -58,6 +59,9 @@ public class Bienvenida_activity extends AppCompatActivity {
     private MapDialog mapa;
     private UbicacionViewModel ubicacionViewModel;
 
+    /**Botón para enviar una foto o una ubicación al chat.*/
+    private Button sendPicOrLocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +82,45 @@ public class Bienvenida_activity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("retrofit", "You clicked on the button!");
                 sendMsg();
+            }
+        });
+
+        /**Para enviar/cargar una foto o ubicación al chat.*/
+        sendPicOrLocation = findViewById(R.id.adjuntar_foto_ubicacion);
+        sendPicOrLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder picOrLocationDialog = new AlertDialog.Builder(Bienvenida_activity.this);
+                picOrLocationDialog.setTitle("Enviar al chat...");
+                picOrLocationDialog.setMessage("¿Desea enviar una fotografía o una ubicación al chat?");
+
+                /**Para enviar una foto al chat.*/
+                picOrLocationDialog.setPositiveButton("Enviar foto", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent2 = new Intent(Bienvenida_activity.this, SacarFoto.class);
+                        startActivity(intent2);
+                        finish();
+                    }
+                });
+
+                /**Para enviar una ubicación al chat.*/
+                picOrLocationDialog.setNegativeButton("Enviar ubicación", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mapa.show(Bienvenida_activity.this.getSupportFragmentManager(), "MapDialog");
+                    }
+                });
+
+                picOrLocationDialog.setNeutralButton("Cancelar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog showDialog = picOrLocationDialog.create();
+                showDialog.show();
             }
         });
 
@@ -186,13 +229,10 @@ public class Bienvenida_activity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
-            case R.id.activityCargarFoto:
-                Intent intent2 = new Intent(Bienvenida_activity.this, SacarFoto.class);
-                startActivity(intent2);
+            case R.id.activityBienvenida:
+                Intent intent = new Intent(Bienvenida_activity.this, Bienvenida_activity.class);
+                startActivity(intent);
                 finish();
-                return false;
-            case R.id.enviarUbicacion:
-                mapa.show(this.getSupportFragmentManager(), "MapDialog");
                 return false;
             case R.id.activityIntegrantes:
                 Intent intent3 = new Intent(Bienvenida_activity.this, TeamInfo.class);

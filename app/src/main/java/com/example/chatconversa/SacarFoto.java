@@ -189,6 +189,8 @@ public class SacarFoto extends AppCompatActivity {
 
     /**Método para enviar la foto tomada al chat.*/
     private void sendPicToChat() {
+        Log.d("retrofit", "PATH PHOTO: " + pathPhoto);
+
         File archivoImagen = new File(pathPhoto);
         RequestBody image = RequestBody.create(MediaType.parse("multipart/form-data"), archivoImagen);
         MultipartBody.Part file = MultipartBody.Part.createFormData("image", archivoImagen.getName(), image);
@@ -197,8 +199,8 @@ public class SacarFoto extends AppCompatActivity {
         RequestBody user_id = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(userID));
         RequestBody nombreUsuario = RequestBody.create(MediaType.parse("multipart/form-data"), usernameWSR);
 
-        final Call<EnviarMensajeRespWS> respuesta = servicioWeb.sendImage(accessToken, user_id, nombreUsuario,
-                null, file);
+        final Call<EnviarMensajeRespWS> respuesta = servicioWeb.sendImgOrLocation(accessToken, user_id, nombreUsuario, file,
+                null, null);
         respuesta.enqueue(new Callback<EnviarMensajeRespWS>() {
             @Override
             public void onResponse(Call<EnviarMensajeRespWS> call, Response<EnviarMensajeRespWS> response) {
@@ -358,11 +360,6 @@ public class SacarFoto extends AppCompatActivity {
             case R.id.activityBienvenida:
                 Intent intent = new Intent(SacarFoto.this, Bienvenida_activity.class);
                 startActivity(intent);
-                finish();
-                return false;
-            case R.id.activityCargarFoto:
-                Intent intent2 = new Intent(SacarFoto.this, SacarFoto.class);
-                startActivity(intent2);
                 finish();
                 return false;
             case R.id.activityIntegrantes:

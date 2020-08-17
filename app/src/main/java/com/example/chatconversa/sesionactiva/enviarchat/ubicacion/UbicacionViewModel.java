@@ -21,4 +21,6 @@ public class UbicacionViewModel extends ViewModel {
     public void setUbicacion(LatLng latLng) {
         ubicacion.setValue(latLng);
     }
+
+    public void setPostUbicacion(LatLng latLng) { ubicacion.postValue(latLng); }
 }

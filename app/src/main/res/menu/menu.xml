@@ -14,18 +14,6 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/activityCargarFoto"
-        android:orderInCategory="100"
-        android:title="Cargar Foto"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/enviarUbicacion"
-        android:orderInCategory="100"
-        android:title="Enviar Ubicación"
-        app:showAsAction="never" />
-
-    <item
         android:id="@+id/activityIntegrantes"
         android:orderInCategory="100"
         android:title="Acerca de ChatConversa"

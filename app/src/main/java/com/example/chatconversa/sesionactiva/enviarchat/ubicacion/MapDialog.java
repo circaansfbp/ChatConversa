@@ -5,10 +5,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +24,9 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.chatconversa.R;
 import com.example.chatconversa.ServicioWeb;
+import com.example.chatconversa.sesionactiva.Bienvenida_activity;
 import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeRespWS;
+import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeViewModel;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -38,6 +42,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.File;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -67,6 +76,9 @@ public class MapDialog extends DialogFragment implements OnMapReadyCallback, Goo
     private int userID;
     private String usernameWSR;
 
+    /**Para guardar la respuesta del WS.*/
+    private EnviarMensajeViewModel respEnvioUbicacionViewModel;
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         /**Llamada al servicio web*/
@@ -82,6 +94,9 @@ public class MapDialog extends DialogFragment implements OnMapReadyCallback, Goo
 
         /**Formateo al access token para enviar ubicación al chat.*/
         accessToken = "Bearer " + accessToken;
+
+        /**Instancia view model*/
+        respEnvioUbicacionViewModel = ViewModelProviders.of(getActivity()).get(EnviarMensajeViewModel.class);
 
         AlertDialog.Builder mapDialog = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
@@ -114,6 +129,7 @@ public class MapDialog extends DialogFragment implements OnMapReadyCallback, Goo
             }
         };
 
+        /**Para enviar la ubicación actual del usuario.*/
         mapDialog.setView(root).setPositiveButton("Enviar mi ubicación actual", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -121,14 +137,21 @@ public class MapDialog extends DialogFragment implements OnMapReadyCallback, Goo
                 Log.d("retrofit", "POSICIÓN ACTUAL LONGITUDE: " + mMap.getCameraPosition().target.longitude);
                 mapLocation.setUbicacion(mMap.getCameraPosition().target);
 
-                final Call<EnviarMensajeRespWS> resp = servicio.sendLocation(accessToken, userID, usernameWSR, mapLocation.getUbicacion().getValue().latitude,
-                        mapLocation.getUbicacion().getValue().longitude);
+                RequestBody id = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(userID));
+                RequestBody nombreUsuario = RequestBody.create(MediaType.parse("multipart/form-data"), usernameWSR);
+                RequestBody lat = RequestBody.create(MediaType.parse("multipart/form-data"),
+                        String.valueOf(mapLocation.getUbicacion().getValue().latitude));
+                RequestBody lng = RequestBody.create(MediaType.parse("multipart/form-data"),
+                        String.valueOf(mapLocation.getUbicacion().getValue().longitude));
+
+                final Call<EnviarMensajeRespWS> resp = servicio.sendImgOrLocation(accessToken, id, nombreUsuario, null,
+                        lat, lng);
                 resp.enqueue(new Callback<EnviarMensajeRespWS>() {
                     @Override
                     public void onResponse(Call<EnviarMensajeRespWS> call, Response<EnviarMensajeRespWS> response) {
                         if (response != null && response.body() != null) {
-                            EnviarMensajeRespWS datos = response.body();
-                            Log.d("retrofit", "RESPUESTA ENVÍO UBICACIÓN ACTUAL: " + datos.toString());
+                            respEnvioUbicacionViewModel.setWebServiceResponse(response.body());
+                            Log.d("retrofit", "RESPUESTA ENVÍO UBICACIÓN ACTUAL: " + response.body());
                         }
                     }
 
@@ -138,10 +161,28 @@ public class MapDialog extends DialogFragment implements OnMapReadyCallback, Goo
                     }
                 });
 
+                /**final Call<EnviarMensajeRespWS> resp = servicio.sendLocation(accessToken, userID, usernameWSR, mapLocation.getUbicacion().getValue().latitude,
+                        mapLocation.getUbicacion().getValue().longitude);
+                resp.enqueue(new Callback<EnviarMensajeRespWS>() {
+                    @Override
+                    public void onResponse(Call<EnviarMensajeRespWS> call, Response<EnviarMensajeRespWS> response) {
+                        if (response != null && response.body() != null) {
+                            respEnvioUbicacionViewModel.setWebServiceResponse(response.body());
+                            Log.d("retrofit", "RESPUESTA ENVÍO UBICACIÓN ACTUAL: " + response.body());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<EnviarMensajeRespWS> call, Throwable t) {
+                        Log.d("retrofit", "Error: " + t.getMessage());
+                    }
+                });*/
+
                 dialog.dismiss();
             }
         });
 
+        /**Para enviar la ubicación que el usuario haya marcado en el mapa.*/
         mapDialog.setNegativeButton("Enviar ubicación marcada", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -150,7 +191,31 @@ public class MapDialog extends DialogFragment implements OnMapReadyCallback, Goo
                     Log.d("retrofit", "LONGITUDE UBICACIÓN MARCADA: " + marker.getPosition().longitude);
                     mapLocation.setUbicacion(marker.getPosition());
 
-                    final Call<EnviarMensajeRespWS> resp = servicio.sendLocation(accessToken, userID, usernameWSR,
+                    RequestBody id = RequestBody.create(MediaType.parse("multipart/form-data"), String.valueOf(userID));
+                    RequestBody nombreUsuario = RequestBody.create(MediaType.parse("multipart/form-data"), usernameWSR);
+                    RequestBody lat = RequestBody.create(MediaType.parse("multipart/form-data"),
+                            String.valueOf(mapLocation.getUbicacion().getValue().latitude));
+                    RequestBody lng = RequestBody.create(MediaType.parse("multipart/form-data"),
+                            String.valueOf(mapLocation.getUbicacion().getValue().longitude));
+
+                    final Call<EnviarMensajeRespWS> resp = servicio.sendImgOrLocation(accessToken, id, nombreUsuario, null,
+                            lat, lng);
+                    resp.enqueue(new Callback<EnviarMensajeRespWS>() {
+                        @Override
+                        public void onResponse(Call<EnviarMensajeRespWS> call, Response<EnviarMensajeRespWS> response) {
+                            if (response != null && response.body() != null) {
+                                respEnvioUbicacionViewModel.setWebServiceResponse(response.body());
+                                Log.d("retrofit", "RESPUESTA ENVÍO UBICACIÓN ACTUAL: " + response.body());
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<EnviarMensajeRespWS> call, Throwable t) {
+                            Log.d("retrofit", "Error: " + t.getMessage());
+                        }
+                    });
+
+                    /**final Call<EnviarMensajeRespWS> resp = servicio.sendLocation(accessToken, userID, usernameWSR,
                             mapLocation.getUbicacion().getValue().latitude, mapLocation.getUbicacion().getValue().longitude);
                     resp.enqueue(new Callback<EnviarMensajeRespWS>() {
                         @Override
@@ -165,7 +230,7 @@ public class MapDialog extends DialogFragment implements OnMapReadyCallback, Goo
                         public void onFailure(Call<EnviarMensajeRespWS> call, Throwable t) {
                             Log.d("retrofit", "Error: " + t.getMessage());
                         }
-                    });
+                    });*/
 
                     dialog.dismiss();
                 } else {
@@ -186,8 +251,8 @@ public class MapDialog extends DialogFragment implements OnMapReadyCallback, Goo
 
     private void initializeTrackingLocation() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(500);
+        //mLocationRequest.setInterval(1000);
+        //mLocationRequest.setFastestInterval(500);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

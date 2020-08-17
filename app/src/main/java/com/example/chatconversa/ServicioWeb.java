@@ -45,15 +45,15 @@ public interface ServicioWeb {
 
     @Multipart
     @POST("message/send")
-    Call<EnviarMensajeRespWS> sendImage(@Header("Authorization") String accessToken, @Part("user_id") RequestBody userID,
-                                        @Part("username") RequestBody username, @Part("message") RequestBody message,
-                                        @Part MultipartBody.Part image);
+    Call<EnviarMensajeRespWS> sendImgOrLocation(@Header("Authorization") String accessToken, @Part("user_id") RequestBody userID,
+                                                @Part("username") RequestBody username, @Part MultipartBody.Part image,
+                                                @Part("latitude") RequestBody latitude, @Part("longitude") RequestBody longitude);
 
-    @FormUrlEncoded
+    /**@FormUrlEncoded
     @POST("message/send")
     Call<EnviarMensajeRespWS> sendLocation(@Header("Authorization") String accessToken, @Field("user_id") int userID,
                                            @Field("username") String username, @Field("latitude") double latitude,
-                                           @Field("longitude") double longitude);
+                                           @Field("longitude") double longitude);*/
 
     @FormUrlEncoded
     @POST("user/logout")
