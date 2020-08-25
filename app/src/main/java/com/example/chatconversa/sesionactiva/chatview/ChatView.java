@@ -27,12 +27,17 @@ import android.widget.TextView;
 import com.example.chatconversa.FullImageDialog;
 import com.example.chatconversa.R;
 import com.example.chatconversa.ServicioWeb;
+import com.example.chatconversa.sesionactiva.Bienvenida_activity;
 import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeRespWS;
 import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeViewModel;
 import com.example.chatconversa.sesionactiva.enviarchat.ubicacion.UbicacionViewModel;
 import com.example.chatconversa.sesionactiva.enviarchat.ubicacion.ViewLocationSentMapDialog;
 import com.google.android.gms.maps.model.LatLng;
+import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
+
+import org.json.JSONObject;
 
 import java.io.File;
 
@@ -50,6 +55,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Use the {@link ChatView#newInstance} factory method to
  * create an instance of this fragment.
  */
+
 public class ChatView extends Fragment {
     LinearLayout contenedor;
     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -57,6 +63,8 @@ public class ChatView extends Fragment {
 
     private static MensajesRespWS data;
     private EnviarMensajeViewModel chatViewModel;
+
+    private MsgViewModel msgViewModel;
 
     /**TextView que muestra los mensajes que envía el usuario al chat.*/
     private TextView displayMyText;
@@ -66,6 +74,8 @@ public class ChatView extends Fragment {
 
     /**ImageView que muestra la imagen de un mapa falso (envío de ubicaciones)*/
     private ImageView displayFakeMap;
+
+    private ImageView displayUserImg;
 
     /**Obtener datos del usuario para subir la imagen falsa del mapa.*/
     private String accessToken;
@@ -108,6 +118,9 @@ public class ChatView extends Fragment {
 
         chatViewModel = ViewModelProviders.of(getActivity()).get(EnviarMensajeViewModel.class);
         ubicacionViewModel = ViewModelProviders.of(getActivity()).get(UbicacionViewModel.class);
+
+        msgViewModel = ViewModelProviders.of(getActivity()).get(MsgViewModel.class);
+
     }
 
     @Override
@@ -124,6 +137,15 @@ public class ChatView extends Fragment {
 
         contenedor = root[0].findViewById(R.id.chat_messages);
 
+        /**
+        msgViewModel.obtenerMsg().observe(getActivity(), new Observer<MensajesRespWS>() {
+            @Override
+            public void onChanged(MensajesRespWS mensajesRespWS) {
+
+            }
+        });
+         */
+
         params.setMargins(10,10,10,10);
         myMessagesParams.setMargins(10,10,10,10);
         myMessagesParams.gravity = Gravity.END;
@@ -131,6 +153,65 @@ public class ChatView extends Fragment {
         Log.d("retrofit", "SHARED PREFERENCES USERNAME: " + sharedPreferences.getString("username", null));
 
         for (int i=data.getData().length-1; i>=0; i--) {
+
+            /**Carga nombre usuario*/
+            if (data.getData()[i].getUser().getUsername() != null) {
+                TextView display = new TextView(getActivity());
+                display.setText(data.getData()[i].getUser().getUsername());
+                display.setTextSize(12);
+                display.setPadding(12, 12, 12, 12);
+
+                if (!data.getData()[i].getUser().getUsername().equalsIgnoreCase(sharedPreferences.getString("username", null))) {
+                    //display.setBackgroundColor(Color.parseColor("#f1faee"));
+                    display.setTextColor(Color.parseColor("#000000"));
+                    display.setLayoutParams(params);
+                } else {
+                    //display.setBackgroundColor(Color.parseColor("#457b9d"));
+                    display.setTextColor(Color.parseColor("#FFFFFF"));
+                    display.setLayoutParams(myMessagesParams);
+                }
+
+                contenedor.addView(display);
+            }
+            /**Cargar thumbnail del usuario (img de perfil)*/
+            if (!data.getData()[i].getUser().getUser_thumbnail().isEmpty()) {
+                Log.d("retrofit", "THUMBNAIL URL: " + data.getData()[i].getUser().getUser_thumbnail());
+
+                String imgUserUrl = data.getData()[i].getUser().getUser_thumbnail();
+                ImageView displayUserImg = new ImageView(getActivity());
+                Picasso.get().load(imgUserUrl).resize(80,80).into(displayUserImg);
+
+                /**Transformacion a imagen circular, pero se ve enanna :c
+                Transformation transformation = new RoundedTransformationBuilder()
+                        .borderColor(Color.TRANSPARENT)
+                        .borderWidthDp(3)
+                        .cornerRadius(30)
+                        .oval(false)
+                        .build();
+
+                Picasso.get()
+                        .load(imageUrl)
+                        .fit()
+                        .transform(transformation)
+                        .into(displayUserImg);
+                 */
+
+                displayUserImg.setPadding(12, 12, 12, 12);
+
+                if (!data.getData()[i].getUser().getUsername().equalsIgnoreCase(sharedPreferences.getString("username", null))) {
+                    displayUserImg.setLayoutParams(params);
+                }else {
+                    displayUserImg.setLayoutParams(myMessagesParams);
+                }
+
+                contenedor.addView(displayUserImg);
+
+            }else {
+                ImageView displayUserImg = new ImageView(getActivity());
+                Picasso.get().load(R.drawable.user_icon).resize(80,80).into(displayUserImg);
+                displayUserImg.setPadding(12, 12, 12, 12);
+                contenedor.addView(displayUserImg);
+            }
 
             /**Carga mensajes.*/
             if (data.getData()[i].getMessage() != null) {
@@ -286,4 +367,5 @@ public class ChatView extends Fragment {
             }
         });
     }
+
 }

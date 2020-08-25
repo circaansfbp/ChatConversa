@@ -3,11 +3,20 @@ package com.example.chatconversa.sesionactiva;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,6 +39,18 @@ import com.example.chatconversa.sesionactiva.chatview.MensajesRespWS;
 import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeRespWS;
 import com.example.chatconversa.sesionactiva.enviarchat.EnviarMensajeViewModel;
 import com.google.android.material.textfield.TextInputEditText;
+import com.pusher.client.Pusher;
+import com.pusher.client.PusherOptions;
+import com.pusher.client.channel.Channel;
+import com.pusher.client.channel.ChannelEventListener;
+import com.pusher.client.channel.PusherEvent;
+import com.pusher.client.channel.SubscriptionEventListener;
+import com.pusher.client.connection.ConnectionEventListener;
+import com.pusher.client.connection.ConnectionState;
+import com.pusher.client.connection.ConnectionStateChange;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -62,10 +83,24 @@ public class Bienvenida_activity extends AppCompatActivity {
     /**Botón para enviar una foto o una ubicación al chat.*/
     private Button sendPicOrLocation;
 
+    /**Generar canal de notificacion*/
+    private  static final String CHANNEL_ID = "PUSHER_MSG";
+
+    /**ir a activity desde notificaciones*/
+    private PendingIntent pendingIntent;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bienvenida_activity);
+
+        createChannel();
+
+        /**Notificaciones*/
+        PusherOptions options = new PusherOptions();
+        options.setCluster("us2");
+        Pusher pusher = new Pusher("46e8ded9439a0fef8cbc",options);
 
         /**Ubicaciones*/
         ubicacionViewModel = ViewModelProviders.of(this).get(UbicacionViewModel.class);
@@ -84,6 +119,65 @@ public class Bienvenida_activity extends AppCompatActivity {
                 sendMsg();
             }
         });
+
+        pusher.connect(new ConnectionEventListener() {
+            @Override
+            public void onConnectionStateChange(ConnectionStateChange change) {
+                Log.d("PUSHER", "Estado actual "
+                        + change.getCurrentState().name()
+                        + " Estado previo " + change.getPreviousState().name());
+            }
+
+            @Override
+            public void onError(String message, String code, Exception e) {
+                Log.d("PUSHER", "ERROR Pusher\n"
+                        + "Mensaje: " + message + "\n"
+                        + "Código: " + code + "\n"
+                        + "e: " + e + "\n"
+                );
+            }
+        }, ConnectionState.ALL);
+
+
+        /**se suscribe a un canal*/
+        Channel channel = pusher.subscribe("my-channel");
+        channel.bind("my-event", new SubscriptionEventListener() {
+            @Override
+            public void onEvent(PusherEvent event) {
+                Log.d("PUSHER", "Nuevo mensaje: " + event.toString());
+                JSONObject jsonObject = null;
+
+                setPendingIntent();
+                NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(Bienvenida_activity.this, CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_chat_notification)
+                        .setContentTitle("Notificación")
+                        .setContentText("Mensaje")
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setDefaults(Notification.DEFAULT_SOUND)
+                        .setDefaults(Notification.DEFAULT_VIBRATE)
+                        .setAutoCancel(true)
+                        .setContentIntent(pendingIntent);
+                try {
+                    jsonObject = new JSONObject(event.toString());
+                    setPendingIntent();
+                    nBuilder = new NotificationCompat.Builder(Bienvenida_activity.this, CHANNEL_ID)
+                            .setSmallIcon(R.drawable.ic_chat_notification)
+                            .setContentTitle("Mensaje de " + jsonObject.getJSONObject("data").getJSONObject("message").getJSONObject("user").getString("username"))
+                            .setContentText(jsonObject.getJSONObject("data").getJSONObject("message").getString("message"))
+                            .setPriority(NotificationCompat.PRIORITY_HIGH)
+                            .setAutoCancel(true)
+                            .setContentIntent(pendingIntent);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(Bienvenida_activity.this);
+                notificationManagerCompat.notify(5, nBuilder.build());
+                getMessages();
+
+
+            }
+        });
+
 
         /**Para enviar/cargar una foto o ubicación al chat.*/
         sendPicOrLocation = findViewById(R.id.adjuntar_foto_ubicacion);
@@ -296,5 +390,24 @@ public class Bienvenida_activity extends AppCompatActivity {
                 Log.d("retrofit", "Error: " + t.getMessage());
             }
         });
+    }
+
+    /**metodo para ir a Bienvenida_activity al presionar notificacion*/
+    private void setPendingIntent(){
+        Intent intent = new Intent(this, Bienvenida_activity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(Bienvenida_activity.class);
+        stackBuilder.addNextIntent(intent);
+        pendingIntent = stackBuilder.getPendingIntent(1, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    /**metodo para crear un canal*/
+    private void createChannel(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,"PUSHER", NotificationManager.IMPORTANCE_HIGH);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
     }
 }
