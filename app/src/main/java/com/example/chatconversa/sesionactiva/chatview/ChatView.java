@@ -75,8 +75,6 @@ public class ChatView extends Fragment {
     /**ImageView que muestra la imagen de un mapa falso (envío de ubicaciones)*/
     private ImageView displayFakeMap;
 
-    private ImageView displayUserImg;
-
     /**Obtener datos del usuario para subir la imagen falsa del mapa.*/
     private String accessToken;
     private int userID;
@@ -153,64 +151,67 @@ public class ChatView extends Fragment {
         Log.d("retrofit", "SHARED PREFERENCES USERNAME: " + sharedPreferences.getString("username", null));
 
         for (int i=data.getData().length-1; i>=0; i--) {
+            if (!data.getData()[i].getUser().getUsername().equalsIgnoreCase(usernameWSR)) {
+                /**Carga nombre usuario*/
+                if (data.getData()[i].getUser().getUsername() != null) {
+                    TextView display = new TextView(getActivity());
+                    display.setText(data.getData()[i].getUser().getUsername());
+                    display.setTextSize(12);
+                    display.setPadding(12, 12, 12, 12);
 
-            /**Carga nombre usuario*/
-            if (data.getData()[i].getUser().getUsername() != null) {
-                TextView display = new TextView(getActivity());
-                display.setText(data.getData()[i].getUser().getUsername());
-                display.setTextSize(12);
-                display.setPadding(12, 12, 12, 12);
+                    if (!data.getData()[i].getUser().getUsername().equalsIgnoreCase(sharedPreferences.getString("username", null))) {
+                        //display.setBackgroundColor(Color.parseColor("#f1faee"));
+                        display.setTextColor(Color.parseColor("#000000"));
+                        display.setLayoutParams(params);
+                    } else {
+                        //display.setBackgroundColor(Color.parseColor("#457b9d"));
+                        display.setTextColor(Color.parseColor("#FFFFFF"));
+                        display.setLayoutParams(myMessagesParams);
+                    }
 
-                if (!data.getData()[i].getUser().getUsername().equalsIgnoreCase(sharedPreferences.getString("username", null))) {
-                    //display.setBackgroundColor(Color.parseColor("#f1faee"));
-                    display.setTextColor(Color.parseColor("#000000"));
-                    display.setLayoutParams(params);
-                } else {
-                    //display.setBackgroundColor(Color.parseColor("#457b9d"));
-                    display.setTextColor(Color.parseColor("#FFFFFF"));
-                    display.setLayoutParams(myMessagesParams);
+                    contenedor.addView(display);
                 }
 
-                contenedor.addView(display);
-            }
-            /**Cargar thumbnail del usuario (img de perfil)*/
-            if (!data.getData()[i].getUser().getUser_thumbnail().isEmpty()) {
-                Log.d("retrofit", "THUMBNAIL URL: " + data.getData()[i].getUser().getUser_thumbnail());
+                /**Cargar thumbnail del usuario (img de perfil)*/
+                if (!data.getData()[i].getUser().getUser_thumbnail().isEmpty()) {
+                    Log.d("retrofit", "THUMBNAIL URL: " + data.getData()[i].getUser().getUser_thumbnail());
 
-                String imgUserUrl = data.getData()[i].getUser().getUser_thumbnail();
-                ImageView displayUserImg = new ImageView(getActivity());
-                Picasso.get().load(imgUserUrl).resize(80,80).into(displayUserImg);
+                    String imgUserUrl = data.getData()[i].getUser().getUser_thumbnail();
+                    ImageView displayUserImg = new ImageView(getActivity());
+                    Picasso.get().load(imgUserUrl).resize(80,80).into(displayUserImg);
 
-                /**Transformacion a imagen circular, pero se ve enanna :c
-                Transformation transformation = new RoundedTransformationBuilder()
-                        .borderColor(Color.TRANSPARENT)
-                        .borderWidthDp(3)
-                        .cornerRadius(30)
-                        .oval(false)
-                        .build();
+                    /**Transformacion a imagen circular, pero se ve enanna :c
+                     Transformation transformation = new RoundedTransformationBuilder()
+                     .borderColor(Color.TRANSPARENT)
+                     .borderWidthDp(3)
+                     .cornerRadius(30)
+                     .oval(false)
+                     .build();
 
-                Picasso.get()
-                        .load(imageUrl)
-                        .fit()
-                        .transform(transformation)
-                        .into(displayUserImg);
-                 */
+                     Picasso.get()
+                     .load(imageUrl)
+                     .fit()
+                     .transform(transformation)
+                     .into(displayUserImg);
+                     */
 
-                displayUserImg.setPadding(12, 12, 12, 12);
+                    displayUserImg.setPadding(12, 12, 12, 12);
 
-                if (!data.getData()[i].getUser().getUsername().equalsIgnoreCase(sharedPreferences.getString("username", null))) {
-                    displayUserImg.setLayoutParams(params);
+                    if (!data.getData()[i].getUser().getUsername().equalsIgnoreCase(sharedPreferences.getString("username", null))) {
+                        displayUserImg.setLayoutParams(params);
+                    }else {
+                        displayUserImg.setLayoutParams(myMessagesParams);
+                    }
+
+                    contenedor.addView(displayUserImg);
+
                 }else {
-                    displayUserImg.setLayoutParams(myMessagesParams);
+                    ImageView displayUserImg = new ImageView(getActivity());
+                    Picasso.get().load(R.drawable.user_icon).resize(80,80).into(displayUserImg);
+                    displayUserImg.setPadding(12, 12, 12, 12);
+                    displayUserImg.setLayoutParams(params);
+                    contenedor.addView(displayUserImg);
                 }
-
-                contenedor.addView(displayUserImg);
-
-            }else {
-                ImageView displayUserImg = new ImageView(getActivity());
-                Picasso.get().load(R.drawable.user_icon).resize(80,80).into(displayUserImg);
-                displayUserImg.setPadding(12, 12, 12, 12);
-                contenedor.addView(displayUserImg);
             }
 
             /**Carga mensajes.*/

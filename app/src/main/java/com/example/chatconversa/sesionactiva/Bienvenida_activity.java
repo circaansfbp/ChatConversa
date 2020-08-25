@@ -368,6 +368,7 @@ public class Bienvenida_activity extends AppCompatActivity {
             @Override
             public void onResponse(Call<CerrarSesionRespWS> call, Response<CerrarSesionRespWS> response) {
                 Log.d("retrofit", "entré al método onResponse");
+                Log.d("retrofit", "LOGOUT RESPONSE BODY: " + response.body());
                 if (response != null && response.body() != null) {
                     Log.d("retrofit", "CIERRE SESION: " + response.body().toString());
 
