@@ -159,22 +159,48 @@ public class Bienvenida_activity extends AppCompatActivity {
                         .setContentIntent(pendingIntent);
                 try {
                     jsonObject = new JSONObject(event.toString());
-                    setPendingIntent();
-                    nBuilder = new NotificationCompat.Builder(Bienvenida_activity.this, CHANNEL_ID)
-                            .setSmallIcon(R.drawable.ic_chat_notification)
-                            .setContentTitle("Mensaje de " + jsonObject.getJSONObject("data").getJSONObject("message").getJSONObject("user").getString("username"))
-                            .setContentText(jsonObject.getJSONObject("data").getJSONObject("message").getString("message"))
-                            .setPriority(NotificationCompat.PRIORITY_HIGH)
-                            .setAutoCancel(true)
-                            .setContentIntent(pendingIntent);
+                    /** Mensaje no null*/
+                    if(jsonObject.getJSONObject("data").getJSONObject("message").getString("message")!=" " || jsonObject.getJSONObject("data").getJSONObject("message").getString("message")!= null) {
+                        nBuilder = new NotificationCompat.Builder(Bienvenida_activity.this, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_chat_notification)
+                                .setContentTitle("Mensaje de " + jsonObject.getJSONObject("data").getJSONObject("message").getJSONObject("user").getString("username"))
+                                .setContentText(jsonObject.getJSONObject("data").getJSONObject("message").getString("message"))
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .setDefaults(Notification.DEFAULT_SOUND)
+                                .setDefaults(Notification.DEFAULT_VIBRATE)
+                                .setAutoCancel(true)
+                                .setContentIntent(pendingIntent);
+                        /**Latitud y longitud no nulas*/
+                    }else if(jsonObject.getJSONObject("data").getJSONObject("message").getString("latitude")!= null && jsonObject.getJSONObject("data").getJSONObject("message").getString("longitude")!= null){
+                        nBuilder = new NotificationCompat.Builder(Bienvenida_activity.this, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_chat_notification)
+                                .setContentTitle("Mensaje de " + jsonObject.getJSONObject("data").getJSONObject("message").getJSONObject("user").getString("username"))
+                                .setContentText("Ubicación recibida")
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .setDefaults(Notification.DEFAULT_SOUND)
+                                .setDefaults(Notification.DEFAULT_VIBRATE)
+                                .setAutoCancel(true)
+                                .setContentIntent(pendingIntent);
+                        /**Imagen no nula*/
+                    }else {
+                        nBuilder = new NotificationCompat.Builder(Bienvenida_activity.this, CHANNEL_ID)
+                                .setSmallIcon(R.drawable.ic_chat_notification)
+                                .setContentTitle("Mensaje de " + jsonObject.getJSONObject("data").getJSONObject("message").getJSONObject("user").getString("username"))
+                                .setContentText("Imagen recibida")
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .setDefaults(Notification.DEFAULT_SOUND)
+                                .setDefaults(Notification.DEFAULT_VIBRATE)
+                                .setAutoCancel(true)
+                                .setContentIntent(pendingIntent);
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(Bienvenida_activity.this);
                 notificationManagerCompat.notify(5, nBuilder.build());
-                getMessages();
-
-
             }
         });
 
