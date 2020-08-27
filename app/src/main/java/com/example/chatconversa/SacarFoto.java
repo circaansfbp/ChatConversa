@@ -226,7 +226,9 @@ public class SacarFoto extends AppCompatActivity {
                     msg.setNegativeButton("Tomar otra foto", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
+                            Intent otraFoto = new Intent(SacarFoto.this, SacarFoto.class);
+                            startActivity(otraFoto);
+                            finish();
                         }
                     });
 
