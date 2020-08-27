@@ -160,7 +160,9 @@ public class Bienvenida_activity extends AppCompatActivity {
                 try {
                     jsonObject = new JSONObject(event.toString());
                     /** Mensaje no null*/
-                    if(jsonObject.getJSONObject("data").getJSONObject("message").getString("message")!=" " || jsonObject.getJSONObject("data").getJSONObject("message").getString("message")!= null) {
+                    if(jsonObject.getJSONObject("data").getJSONObject("message").getString("message") != null) {
+                        Log.d("PUSHER", "Entré al if de MSJE DE TEXTO");
+                        Log.d("PUSHER", "MSJE: " + jsonObject.getJSONObject("data").getJSONObject("message").getString("message"));
                         nBuilder = new NotificationCompat.Builder(Bienvenida_activity.this, CHANNEL_ID)
                                 .setSmallIcon(R.drawable.ic_chat_notification)
                                 .setContentTitle("Mensaje de " + jsonObject.getJSONObject("data").getJSONObject("message").getJSONObject("user").getString("username"))
@@ -172,7 +174,8 @@ public class Bienvenida_activity extends AppCompatActivity {
                                 .setAutoCancel(true)
                                 .setContentIntent(pendingIntent);
                         /**Latitud y longitud no nulas*/
-                    }else if(jsonObject.getJSONObject("data").getJSONObject("message").getString("latitude")!= null && jsonObject.getJSONObject("data").getJSONObject("message").getString("longitude")!= null){
+                    }else if(jsonObject.getJSONObject("data").getJSONObject("message").getString("latitude") != null && jsonObject.getJSONObject("data").getJSONObject("message").getString("longitude")!= null){
+                        Log.d("PUSHER", "Entré al if de UBICACIÓN");
                         nBuilder = new NotificationCompat.Builder(Bienvenida_activity.this, CHANNEL_ID)
                                 .setSmallIcon(R.drawable.ic_chat_notification)
                                 .setContentTitle("Mensaje de " + jsonObject.getJSONObject("data").getJSONObject("message").getJSONObject("user").getString("username"))
@@ -185,6 +188,7 @@ public class Bienvenida_activity extends AppCompatActivity {
                                 .setContentIntent(pendingIntent);
                         /**Imagen no nula*/
                     }else {
+                        Log.d("PUSHER", "Entré al if de IMAGEN");
                         nBuilder = new NotificationCompat.Builder(Bienvenida_activity.this, CHANNEL_ID)
                                 .setSmallIcon(R.drawable.ic_chat_notification)
                                 .setContentTitle("Mensaje de " + jsonObject.getJSONObject("data").getJSONObject("message").getJSONObject("user").getString("username"))

@@ -239,7 +239,6 @@ public class ChatView extends Fragment {
                 Log.d("retrofit", "IMAGE URL: " + data.getData()[i].getImage());
 
                 String thumbnailURL = data.getData()[i].getThumbnail();
-                String imageUrl = data.getData()[i].getImage();
                 ImageView displayThumbnail = new ImageView(getActivity());
                 Picasso.get().load(thumbnailURL).into(displayThumbnail);
 
@@ -251,10 +250,13 @@ public class ChatView extends Fragment {
                     displayThumbnail.setLayoutParams(myMessagesParams);
                 }
 
-                fullImageDialog = new FullImageDialog(imageUrl);
+
+                int finalI1 = i;
                 displayThumbnail.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        String imageUrl = data.getData()[finalI1].getImage();
+                        fullImageDialog = new FullImageDialog(imageUrl);
                         fullImageDialog.show(getActivity().getSupportFragmentManager(), "FullImageDialog");
                     }
                 });
